@@ -1,0 +1,29 @@
+{
+  "name": "englishspeech",
+  "version": "1.0.0",
+  "description": "EnglishSpeech application with React frontend and Node.js backend",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "nodemon server/server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-client": "cd client && npm install",
+    "install-server": "cd server && npm install",
+    "install-all": "npm install && npm run install-server && npm run install-client",
+    "build": "cd client && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Idantauga/EnglishSpeech.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Idantauga/EnglishSpeech/issues"
+  },
+  "homepage": "https://github.com/Idantauga/EnglishSpeech#readme",
+  "dependencies": {
+    "concurrently": "^8.2.1"
+  }
+}

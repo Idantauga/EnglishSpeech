@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test File Upload</title>
+</head>
+<body>
+    <h1>Test File Upload</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div>
+            <label for="question">Question:</label>
+            <input type="text" id="question" name="question" value="Test question">
+        </div>
+        <div>
+            <label for="studyLevel">Study Level:</label>
+            <input type="text" id="studyLevel" name="studyLevel" value="intermediate">
+        </div>
+        <div>
+            <label for="audio">Audio File:</label>
+            <input type="file" id="audio" name="audio" accept="audio/*">
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('question', document.getElementById('question').value);
+            formData.append('studyLevel', document.getElementById('studyLevel').value);
+            formData.append('audio', document.getElementById('audio').files[0]);
+
+            try {
+                const response = await fetch('http://localhost:5001/api/check-english', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <h3>Response (${response.status}):</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
