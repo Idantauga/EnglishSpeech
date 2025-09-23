@@ -86,9 +86,11 @@ function App() {
       // Convert to JSON string and append to form data
       formData.append('criteria', JSON.stringify(criteriaData));
       
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      // If apiUrl already contains /api, don't add it again
-      const endpoint = apiUrl.endsWith('/api') ? `${apiUrl}/check-english` : `${apiUrl}/api/check-english`;
+      // For production, use /api/check-english directly
+      // For development, use the full URL with port
+      const endpoint = process.env.NODE_ENV === 'production' 
+        ? '/api/check-english'
+        : 'http://localhost:5001/api/check-english';
       
       console.log('Submitting form with data:', {
         question,
