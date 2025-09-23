@@ -86,8 +86,10 @@ function App() {
       // Convert to JSON string and append to form data
       formData.append('criteria', JSON.stringify(criteriaData));
       
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      const endpoint = `${apiUrl}/api/check-english`;
+      // For production (Vercel), use relative path; for development, use the full URL
+      const isProduction = process.env.NODE_ENV === 'production';
+      const apiUrl = isProduction ? '/api' : (process.env.REACT_APP_API_URL || 'http://localhost:5001');
+      const endpoint = isProduction ? '/api/check-english' : `${apiUrl}/api/check-english`;
       
       console.log('Submitting form with data:', {
         question,
