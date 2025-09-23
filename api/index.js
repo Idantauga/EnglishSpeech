@@ -199,6 +199,11 @@ app.post('/api/check-english', (req, res) => {
   });
 });
 
+// Add a root route for API health check
+app.get('/', (req, res) => {
+  res.json({ status: 'API is running' });
+});
+
 // Catch-all route for API
 app.all('*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });

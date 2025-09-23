@@ -1,6 +1,6 @@
 {
   "framework": "create-react-app",
-  "buildCommand": "CI=false npm run build",
+  "buildCommand": "node build.js",
   "devCommand": "npm start",
   "installCommand": "npm install",
   "outputDirectory": "build"

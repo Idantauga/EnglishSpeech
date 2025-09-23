@@ -21,10 +21,9 @@
     "start": "craco start",
     "build": "CI=false craco build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "vercel-build": "CI=false craco build"
+    "eject": "react-scripts eject"
   },
-  "homepage": ".",
+  "homepage": "/",
   "eslintConfig": {
     "extends": [
       "react-app",

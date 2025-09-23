@@ -1,27 +1,22 @@
-// This file helps Vercel understand the project structure
-// It redirects to the appropriate handler based on the request path
+// This file is a simple redirect to the client build
 
-// For API requests, use the API handler
+import { createServer } from 'http';
+import { parse } from 'url';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Export the API handler for Vercel to use
 export { default as api } from './api/index.js';
 
-// For all other requests, serve the static files
+// Default handler for the root path
 export default function handler(req, res) {
-  // Log the request for debugging
-  console.log('Root handler received request for:', req.url);
+  console.log('Request received for:', req.url);
   
-  // Redirect to the client's index.html
-  res.status(200).send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="refresh" content="0;url=/client/build/index.html">
-      <title>English Speech Assessment</title>
-    </head>
-    <body>
-      <p>Redirecting to application...</p>
-    </body>
-    </html>
-  `);
+  // Redirect to the client build
+  res.writeHead(302, { Location: '/client/build/index.html' });
+  res.end();
 }
