@@ -28,17 +28,27 @@ const upload = multer({
   }
 });
 
-// Middleware
-app.use(cors({
+// CORS configuration
+const corsOptions = {
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With'],
   credentials: true,
-  preflightContinue: true
-}));
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 // Handle preflight requests
-app.options('*', cors());
+app.options('*', cors(corsOptions));
+
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -68,8 +78,26 @@ app.post('/api/check-english', (req, res) => {
       }
       
       // Get form fields from the request body
-      const { question, studyLevel } = req.body;
+      const { question, studyLevel, criteria } = req.body;
       const audioFile = req.file;
+      
+      console.log('Received form data:', {
+        question,
+        studyLevel,
+        audioFile: audioFile ? `${audioFile.originalname} (${audioFile.size} bytes)` : 'Not provided'
+      });
+      
+      // Log criteria separately for better readability
+      if (criteria) {
+        try {
+          const criteriaObj = JSON.parse(criteria);
+          console.log('Criteria data:', JSON.stringify(criteriaObj, null, 2));
+        } catch (e) {
+          console.log('Criteria data (not JSON):', criteria);
+        }
+      } else {
+        console.log('Criteria: Not provided');
+      }
 
       if (!audioFile) {
         return res.status(400).json({ error: 'No audio file provided' });
@@ -91,11 +119,25 @@ app.post('/api/check-english', (req, res) => {
       // Add other form fields
       if (question) formData.append('question', question);
       if (studyLevel) formData.append('studyLevel', studyLevel);
+      
+      // Handle criteria as JSON
+      if (criteria) {
+        try {
+          // Verify it's valid JSON by parsing and stringifying again
+          // This ensures consistent formatting
+          const criteriaObj = JSON.parse(criteria);
+          console.log('Criteria parsed successfully:', criteriaObj);
+          formData.append('criteria', JSON.stringify(criteriaObj));
+        } catch (e) {
+          console.warn('Failed to parse criteria as JSON, sending as-is:', e);
+          formData.append('criteria', criteria);
+        }
+      }
 
       console.log('Forwarding request to n8n webhook...');
       
       // Log form data fields (compatible with Node.js)
-      console.log('Form data fields:', ['audio', 'question', 'studyLevel']);
+      console.log('Form data fields:', ['audio', 'question', 'studyLevel', 'criteria']);
       
       // Forward to n8n webhook
       try {
