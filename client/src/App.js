@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import './App.css';
-import { Container, Typography, TextField, Button, Box, MenuItem, CircularProgress } from '@mui/material';
 import AudioInputModal from './components/AudioInputModal';
 import AssessmentResults from './components/AssessmentResults';
 
@@ -24,12 +23,10 @@ function App() {
   ]);
   
   const [showAudioModal, setShowAudioModal] = useState(false);
-  const [audioFile, setAudioFile] = useState(null);
   const [audioURL, setAudioURL] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [assessmentResults, setAssessmentResults] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
 
   const handleWeightChange = (id, value) => {
     const newValue = Math.max(0, parseInt(value) || 0);
@@ -69,10 +66,8 @@ function App() {
 
   const handleAudioSubmit = async (file, fileURL) => {
     try {
-      setAudioFile(file);
       setAudioURL(fileURL);
       setIsSubmitting(true);
-      setError('');
       setShowResults(false);
       
       // Create FormData and append fields
@@ -168,7 +163,6 @@ function App() {
       
     } catch (error) {
       console.error('Error submitting form:', error);
-      setError(error.message);
       alert(`Error: ${error.message}`);
       setShowAudioModal(false); // Close the audio modal on error
     } finally {

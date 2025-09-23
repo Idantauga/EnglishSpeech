@@ -1,7 +1,6 @@
 import React from 'react';
-import { Modal, Button, Typography, Box, Divider, IconButton, Paper } from '@mui/material';
+import { Modal, Button, Typography, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   // Safely extract the data from the results
