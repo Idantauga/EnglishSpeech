@@ -12,9 +12,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Determine the uploads directory based on environment
+const uploadsDir = process.env.VERCEL_ENV ? '/tmp' : 'uploads/';
+
 // Configure multer with file size limits and file filter
 const upload = multer({
-  dest: 'uploads/',
+  dest: uploadsDir,
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
@@ -30,7 +33,7 @@ const upload = multer({
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null].filter(Boolean),
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With'],
   credentials: true,
@@ -52,9 +55,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
+// Create uploads directory if it doesn't exist and we're not on Vercel
+if (!process.env.VERCEL_ENV && !fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
 }
 
 // API Routes
