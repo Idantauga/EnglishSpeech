@@ -13,7 +13,8 @@
     "install-api": "cd api && npm install",
     "install-all": "npm install && npm run install-server && npm run install-client && npm run install-api",
     "postinstall": "npm run install-client && npm run install-api",
-    "build": "cd client && npm run build"
+    "build": "cd client && CI=false npm run build",
+    "vercel-build": "cd client && CI=false npm run build"
   },
   "repository": {
     "type": "git",

@@ -24,6 +24,7 @@
     "eject": "react-scripts eject",
     "vercel-build": "CI=false craco build"
   },
+  "homepage": ".",
   "eslintConfig": {
     "extends": [
       "react-app",

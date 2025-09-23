@@ -9,7 +9,8 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "build",
+        "buildCommand": "npm run build"
       }
     }
   ],
@@ -19,11 +20,12 @@
       "dest": "/api/index.js"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/static/(.*)",
       "dest": "/client/build/static/$1"
+    },
+    {
+      "src": "/(.+\\.[a-zA-Z0-9]{3,4}$)",
+      "dest": "/client/build/$1"
     },
     {
       "src": "/(.*)",
