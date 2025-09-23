@@ -198,13 +198,10 @@ app.post('/api/check-english', (req, res) => {
   });
 });
 
-// Only start the server if not running in a serverless environment
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
+// For local development
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
-// Export the Express app for serverless environments
 export default app;
