@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "framework": "create-react-app",
-  "buildCommand": "npm run build",
-  "outputDirectory": "client/build",
   "builds": [
     {
       "src": "api/index.js",
@@ -12,15 +9,14 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "framework": "create-react-app"
+        "distDir": "build"
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api"
+      "dest": "/api/index.js"
     },
     {
       "handle": "filesystem"
@@ -28,10 +24,6 @@
     {
       "src": "/static/(.*)",
       "dest": "/client/build/static/$1"
-    },
-    {
-      "src": "/(.+\\.[a-zA-Z0-9]+)$",
-      "dest": "/client/build/$1"
     },
     {
       "src": "/(.*)",
