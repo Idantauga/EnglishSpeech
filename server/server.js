@@ -33,7 +33,12 @@ const upload = multer({
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null].filter(Boolean),
+  origin: [
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000', 
+    'https://english-speech-porq.vercel.app',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  ].filter(Boolean),
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With'],
   credentials: true,

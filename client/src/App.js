@@ -87,7 +87,8 @@ function App() {
       formData.append('criteria', JSON.stringify(criteriaData));
       
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      const endpoint = `${apiUrl}/api/check-english`;
+      // If apiUrl already contains /api, don't add it again
+      const endpoint = apiUrl.endsWith('/api') ? `${apiUrl}/check-english` : `${apiUrl}/api/check-english`;
       
       console.log('Submitting form with data:', {
         question,
