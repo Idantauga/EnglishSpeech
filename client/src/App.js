@@ -82,6 +82,9 @@ function App() {
   };
 
   const handleAudioSubmit = async (file, fileURL) => {
+    // Store any active polling interval
+    let pollInterval;
+    
     try {
       setAudioURL(fileURL);
       setIsSubmitting(true);
@@ -228,12 +231,44 @@ function App() {
         setShowAudioModal(false);
         setIsProcessing(true);
         
-        // In a production app, you would poll an endpoint to check status
-        // For now, we'll just wait a bit and then show results
+        // Start polling for results
+        pollInterval = setInterval(async () => {
+          try {
+            console.log('Polling for results...');
+            const statusEndpoint = process.env.NODE_ENV === 'production'
+              ? `/api/status?requestId=${responseData.requestId}`
+              : `http://localhost:5001/api/status?requestId=${responseData.requestId}`;
+            
+            const statusResponse = await fetch(statusEndpoint);
+            
+            if (statusResponse.ok) {
+              const statusResult = await statusResponse.json();
+              console.log('Status check result:', statusResult);
+              
+              if (statusResult && statusResult.output) {
+                // We have results!
+                clearInterval(pollInterval);
+                setAssessmentResults(statusResult);
+                setIsProcessing(false);
+                setShowResults(true);
+              }
+            } else {
+              console.warn('Status check failed:', statusResponse.status);
+            }
+          } catch (pollError) {
+            console.error('Error polling for results:', pollError);
+          }
+        }, 3000); // Poll every 3 seconds
+        
+        // Set a timeout to stop polling after 30 seconds
         setTimeout(() => {
-          setIsProcessing(false);
-          setShowResults(true);
-        }, 10000);
+          clearInterval(pollInterval);
+          if (isProcessing) {
+            // If we're still processing after 30 seconds, show a timeout message
+            setIsProcessing(false);
+            alert('Processing is taking longer than expected. Please try again with a shorter audio file.');
+          }
+        }, 30000);
         
       } else if (responseData && responseData.output) {
         // This is a direct result
@@ -254,6 +289,11 @@ function App() {
       alert(`Error: ${error.message}`);
       setShowAudioModal(false); // Close the audio modal on error
       setIsProcessing(false); // Reset processing state on error
+      
+      // Clear any polling interval
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
     } finally {
       setIsSubmitting(false);
     }
