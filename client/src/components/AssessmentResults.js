@@ -11,9 +11,25 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   // Extract weighted average score from the new response format
   const weightedAverage = results?.weightedAverage?.score;
   
+  // Extract duration and word count from the new response format
+  const duration = results?.duration;
+  const wordCount = results?.word_count;
+  
   if (!open || Object.keys(assessment).length === 0) {
     return null;
   }
+
+  // Helper function to format duration
+  const formatDuration = (seconds) => {
+    if (!seconds) return 'N/A';
+    const sec = parseInt(seconds);
+    const minutes = Math.floor(sec / 60);
+    const remainingSeconds = sec % 60;
+    if (minutes > 0) {
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    return `${sec}s`;
+  };
 
   const renderScoreBar = (score) => {
     // Score is already out of 100, so we use it directly for percentage
@@ -149,6 +165,38 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     }}
                   />
                 </Box>
+                
+                {/* Response Statistics */}
+                {(duration || wordCount) && (
+                  <Box sx={{ 
+                    mt: 2, 
+                    display: 'flex', 
+                    gap: 3,
+                    justifyContent: 'center',
+                    flexWrap: 'wrap'
+                  }}>
+                    {duration && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Duration
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {formatDuration(duration)}
+                        </Typography>
+                      </Box>
+                    )}
+                    {wordCount && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Word Count
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {wordCount} words
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
               </Box>
             )}
           </Box>

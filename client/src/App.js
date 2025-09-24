@@ -86,8 +86,16 @@ function App() {
       // Convert to JSON string and append to form data
       formData.append('criteria', JSON.stringify(criteriaData));
       
-      // Call n8n webhook directly - no backend needed!
+      // Direct n8n webhook call - no backend proxy needed!
       const endpoint = 'https://tauga.app.n8n.cloud/webhook/english-test';
+      
+      /* OLD BACKEND APPROACH (commented out for future reference):
+      // For production, use /api/check-english directly
+      // For development, use the full URL with port
+      const endpoint = process.env.NODE_ENV === 'production' 
+        ? '/api/check-english'
+        : 'http://localhost:5001/api/check-english';
+      */
       
       console.log('Submitting form with data:', {
         question,
