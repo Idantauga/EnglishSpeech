@@ -11,7 +11,7 @@ import multer from 'multer';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fileSize: 15 * 1024 * 1024, // 15MB limit for faster processing
   },
   fileFilter: (req, file, cb) => {
     // Accept audio files
@@ -22,6 +22,19 @@ const upload = multer({
     }
   }
 });
+
+// Error handler for multer errors
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'File too large. Maximum size is 15MB.' });
+    }
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  } else if (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  next();
+};
 
 // Initialize Express app
 const app = express();
@@ -99,19 +112,28 @@ async function handleCheckEnglish(req, res) {
       const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
       console.log('Sending to webhook URL:', webhookUrl);
       
-      // Use formData.getBuffer() to get the raw form data with proper headers
+      // Set timeout to prevent Vercel function from hanging
       const response = await axios.post(webhookUrl, formData.getBuffer(), {
         headers: {
           ...formData.getHeaders(),
         },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
+        maxContentLength: 15 * 1024 * 1024, // 15MB limit
+        maxBodyLength: 15 * 1024 * 1024,    // 15MB limit
+        timeout: 50000, // 50 second timeout (Vercel function timeout is 60s)
       });
       
       // Forward the response from n8n
       res.json(response.data);
     } catch (error) {
       console.error('Error forwarding request to n8n:', error);
+      
+      // Provide more helpful error message
+      if (error.code === 'ECONNABORTED') {
+        return res.status(504).json({
+          error: 'Request to processing service timed out. Please try with a shorter audio file.',
+          details: 'The audio processing took too long. Try a recording under 30 seconds.'
+        });
+      }
       
       res.status(500).json({
         error: 'Failed to forward request to n8n',
@@ -129,13 +151,13 @@ async function handleCheckEnglish(req, res) {
 }
 
 // Handle check-english endpoint - with /api prefix (from client)
-app.post('/api/check-english', upload.single('audio'), async (req, res) => {
+app.post('/api/check-english', upload.single('audio'), handleMulterError, async (req, res) => {
   console.log('Received request at /api/check-english');
   handleCheckEnglish(req, res);
 });
 
 // Handle check-english endpoint - without /api prefix (from Vercel rewrites)
-app.post('/check-english', upload.single('audio'), async (req, res) => {
+app.post('/check-english', upload.single('audio'), handleMulterError, async (req, res) => {
   console.log('Received request at /check-english');
   handleCheckEnglish(req, res);
 });

@@ -5,8 +5,8 @@
   "framework": "create-react-app",
   "functions": {
     "api/*.js": {
-      "memory": 1024,
-      "maxDuration": 10
+      "memory": 3008,
+      "maxDuration": 60
     }
   },
   "rewrites": [
