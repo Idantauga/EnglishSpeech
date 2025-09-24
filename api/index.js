@@ -49,6 +49,66 @@ app.get('/hello', (req, res) => {
   res.json({ message: 'Hello from Vercel serverless function!' });
 });
 
+// Test endpoint that doesn't use the external webhook
+app.post('/api/test-upload', upload.single('audio'), async (req, res) => {
+  try {
+    // Check if we received a file
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    // Return file information without forwarding to external service
+    res.json({
+      success: true,
+      message: 'File received successfully',
+      file: {
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        encoding: req.file.encoding
+      },
+      body: {
+        keys: Object.keys(req.body),
+        question: req.body.question,
+        studyLevel: req.body.studyLevel
+      }
+    });
+  } catch (error) {
+    console.error('Error in test upload:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Same endpoint without /api prefix
+app.post('/test-upload', upload.single('audio'), async (req, res) => {
+  try {
+    // Check if we received a file
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    // Return file information without forwarding to external service
+    res.json({
+      success: true,
+      message: 'File received successfully',
+      file: {
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        encoding: req.file.encoding
+      },
+      body: {
+        keys: Object.keys(req.body),
+        question: req.body.question,
+        studyLevel: req.body.studyLevel
+      }
+    });
+  } catch (error) {
+    console.error('Error in test upload:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Helper function to handle check-english requests
 async function handleCheckEnglish(req, res) {
   try {
@@ -87,20 +147,43 @@ async function handleCheckEnglish(req, res) {
       return res.status(400).json({ error: 'No audio data provided' });
     }
     
-    // Add the audio file to formData
-    formData.append('audio', req.file.buffer, {
-      filename: req.file.originalname || 'recording.wav',
-      contentType: req.file.mimetype,
-      knownLength: req.file.size
-    });
+    console.log(`Processing audio file: ${req.file.originalname}, size: ${req.file.size} bytes, type: ${req.file.mimetype}`);
+    
+    // Add the audio file to formData - optimize for performance
+    try {
+      // Add a smaller file size limit for better performance
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      
+      if (req.file.size > MAX_FILE_SIZE) {
+        return res.status(413).json({ error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` });
+      }
+      
+      // Add the file to the form data
+      formData.append('audio', req.file.buffer, {
+        filename: req.file.originalname || 'recording.wav',
+        contentType: req.file.mimetype,
+        knownLength: req.file.size
+      });
+    } catch (error) {
+      console.error('Error processing audio file:', error);
+      return res.status(500).json({ error: 'Failed to process audio file', details: error.message });
+    }
     
     // Forward to n8n webhook
     try {
       const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
       console.log('Sending to webhook URL:', webhookUrl);
       
-      // Use formData.getBuffer() to get the raw form data with proper headers
-      const response = await axios.post(webhookUrl, formData.getBuffer(), {
+      // Set timeout to 50 seconds (just under the 60 second function limit)
+      const timeoutMs = 50000;
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timed out')), timeoutMs);
+      });
+      
+      // Create the actual request promise
+      const requestPromise = axios.post(webhookUrl, formData.getBuffer(), {
         headers: {
           ...formData.getHeaders(),
         },
@@ -108,14 +191,43 @@ async function handleCheckEnglish(req, res) {
         maxBodyLength: Infinity,
       });
       
+      // Race the request against the timeout
+      const response = await Promise.race([requestPromise, timeoutPromise]);
+      
       // Forward the response from n8n
       res.json(response.data);
     } catch (error) {
       console.error('Error forwarding request to n8n:', error);
       
+      // Check if it's a timeout error
+      if (error.message === 'Request timed out') {
+        return res.status(504).json({
+          error: 'Gateway Timeout',
+          message: 'The request to the external service timed out. Please try again with a smaller audio file.',
+          details: 'The n8n webhook did not respond within the allowed time limit.'
+        });
+      }
+      
+      // Check for axios specific errors
+      if (error.isAxiosError) {
+        const statusCode = error.response?.status || 500;
+        const errorMessage = error.response?.data?.message || error.message;
+        
+        console.error(`Axios error: ${statusCode} - ${errorMessage}`);
+        console.error('Response data:', error.response?.data);
+        
+        return res.status(statusCode).json({
+          error: 'External Service Error',
+          message: errorMessage,
+          details: `Status code: ${statusCode}`
+        });
+      }
+      
+      // Generic error
       res.status(500).json({
         error: 'Failed to forward request to n8n',
-        details: error.message
+        message: error.message,
+        details: error.stack?.split('\n')[0] || 'No stack trace available'
       });
     }
   } catch (error) {

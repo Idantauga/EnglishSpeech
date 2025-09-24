@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Audio Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Audio Upload</h1>
+    <p>Use this form to test the audio upload functionality without going through the full application.</p>
+    
+    <div class="form-group">
+        <label for="endpoint">API Endpoint:</label>
+        <select id="endpoint">
+            <option value="/api/test-upload">Test Upload (no webhook)</option>
+            <option value="/api/check-english">Check English (with webhook)</option>
+        </select>
+    </div>
+    
+    <form id="uploadForm">
+        <div class="form-group">
+            <label for="audioFile">Audio File:</label>
+            <input type="file" id="audioFile" name="audio" accept="audio/*" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="question">Question:</label>
+            <input type="text" id="question" name="question" value="Test question" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="studyLevel">Study Level:</label>
+            <select id="studyLevel" name="studyLevel">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+            </select>
+        </div>
+        
+        <button type="submit">Upload</button>
+    </form>
+    
+    <div id="result" style="margin-top: 20px; display: none;">
+        <h2>Response:</h2>
+        <pre id="responseData"></pre>
+    </div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const responseData = document.getElementById('responseData');
+            resultDiv.style.display = 'none';
+            responseData.textContent = 'Loading...';
+            
+            const formData = new FormData();
+            const audioFile = document.getElementById('audioFile').files[0];
+            const question = document.getElementById('question').value;
+            const studyLevel = document.getElementById('studyLevel').value;
+            const endpoint = document.getElementById('endpoint').value;
+            
+            formData.append('audio', audioFile);
+            formData.append('question', question);
+            formData.append('studyLevel', studyLevel);
+            
+            // Add criteria as JSON
+            const criteria = [
+                { name: 'Pronunciation', description: 'Clarity and accuracy of pronunciation', weight: 1 },
+                { name: 'Fluency', description: 'Smoothness and natural flow of speech', weight: 1 },
+                { name: 'Vocabulary', description: 'Range and appropriateness of vocabulary', weight: 1 },
+                { name: 'Grammar', description: 'Grammar and syntax correctness', weight: 1 }
+            ];
+            formData.append('criteria', JSON.stringify(criteria));
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                const endTime = Date.now();
+                const duration = (endTime - startTime) / 1000;
+                
+                let responseText;
+                try {
+                    const jsonResponse = await response.json();
+                    responseText = JSON.stringify(jsonResponse, null, 2);
+                } catch (e) {
+                    responseText = await response.text();
+                }
+                
+                resultDiv.style.display = 'block';
+                responseData.textContent = `Status: ${response.status} ${response.statusText}\nDuration: ${duration} seconds\n\n${responseText}`;
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                responseData.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
