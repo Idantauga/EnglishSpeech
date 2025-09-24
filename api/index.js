@@ -11,7 +11,7 @@ import multer from 'multer';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 15 * 1024 * 1024, // 15MB limit for faster processing
+    fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: (req, file, cb) => {
     // Accept audio files
@@ -22,19 +22,6 @@ const upload = multer({
     }
   }
 });
-
-// Error handler for multer errors
-const handleMulterError = (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: 'File too large. Maximum size is 15MB.' });
-    }
-    return res.status(400).json({ error: `Upload error: ${err.message}` });
-  } else if (err) {
-    return res.status(400).json({ error: err.message });
-  }
-  next();
-};
 
 // Initialize Express app
 const app = express();
@@ -107,41 +94,30 @@ async function handleCheckEnglish(req, res) {
       knownLength: req.file.size
     });
     
-    // Generate a unique request ID for tracking
-    const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-    
-    // Send immediate acknowledgment to client
-    res.json({
-      status: 'processing',
-      message: 'Your audio is being processed. Results will be available shortly.',
-      requestId: requestId
-    });
-    
-    // Forward to n8n webhook (fire and forget)
-    const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
-    console.log(`Sending request ${requestId} to webhook URL:`, webhookUrl);
-    
-    // Add request ID to form data
-    formData.append('requestId', requestId);
-    
-    // Fire and forget - don't await the response
-    axios.post(webhookUrl, formData.getBuffer(), {
-      headers: {
-        ...formData.getHeaders(),
-      },
-      maxContentLength: 15 * 1024 * 1024, // 15MB limit
-      maxBodyLength: 15 * 1024 * 1024,    // 15MB limit
-      timeout: 300000, // 5 minute timeout for the background process
-    })
-    .then(response => {
-      console.log(`Request ${requestId} completed successfully`);
-    })
-    .catch(error => {
-      console.error(`Error processing request ${requestId}:`, error.message);
-    });
-    
-    // Note: We've already sent the response to the client, so this function will complete
-    // while the webhook processing continues in the background
+    // Forward to n8n webhook
+    try {
+      const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
+      console.log('Sending to webhook URL:', webhookUrl);
+      
+      // Use formData.getBuffer() to get the raw form data with proper headers
+      const response = await axios.post(webhookUrl, formData.getBuffer(), {
+        headers: {
+          ...formData.getHeaders(),
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+      
+      // Forward the response from n8n
+      res.json(response.data);
+    } catch (error) {
+      console.error('Error forwarding request to n8n:', error);
+      
+      res.status(500).json({
+        error: 'Failed to forward request to n8n',
+        details: error.message
+      });
+    }
   } catch (error) {
     console.error('Error processing request:', error);
     
@@ -153,13 +129,13 @@ async function handleCheckEnglish(req, res) {
 }
 
 // Handle check-english endpoint - with /api prefix (from client)
-app.post('/api/check-english', upload.single('audio'), handleMulterError, async (req, res) => {
+app.post('/api/check-english', upload.single('audio'), async (req, res) => {
   console.log('Received request at /api/check-english');
   handleCheckEnglish(req, res);
 });
 
 // Handle check-english endpoint - without /api prefix (from Vercel rewrites)
-app.post('/check-english', upload.single('audio'), handleMulterError, async (req, res) => {
+app.post('/check-english', upload.single('audio'), async (req, res) => {
   console.log('Received request at /check-english');
   handleCheckEnglish(req, res);
 });

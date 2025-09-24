@@ -1,21 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
-import {
-  Container,
-  TextField,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  Box,
-  Slider,
-  Grid,
-  Paper
-} from '@mui/material';
 import AudioInputModal from './components/AudioInputModal';
-import ProcessingModal from './components/ProcessingModal';
 import AssessmentResults from './components/AssessmentResults';
 
 function App() {
@@ -42,8 +27,6 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const [assessmentResults, setAssessmentResults] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [requestId, setRequestId] = useState(null);
 
   const handleWeightChange = (id, value) => {
     const newValue = Math.max(0, parseInt(value) || 0);
@@ -82,9 +65,6 @@ function App() {
   };
 
   const handleAudioSubmit = async (file, fileURL) => {
-    // Store any active polling interval
-    let pollInterval;
-    
     try {
       setAudioURL(fileURL);
       setIsSubmitting(true);
@@ -162,117 +142,17 @@ function App() {
           statusText: response.statusText,
           result
         });
-        
-        // If we get a 504 Gateway Timeout, try to call the webhook directly
-        if (response.status === 504) {
-          console.log('Backend timed out, attempting direct webhook call...');
-          setShowAudioModal(false);
-          setIsProcessing(true);
-          
-          // Create a new FormData for the direct webhook call
-          const webhookFormData = new FormData();
-          webhookFormData.append('audio', file);
-          webhookFormData.append('question', question);
-          webhookFormData.append('studyLevel', studentLevel);
-          
-          // Add criteria
-          const criteriaData = parameters.map(param => ({
-            name: param.name,
-            description: param.description,
-            weight: param.weight
-          }));
-          webhookFormData.append('criteria', JSON.stringify(criteriaData));
-          
-          // Call the webhook directly
-          try {
-            const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
-            console.log('Calling webhook directly:', webhookUrl);
-            
-            // Make the request
-            const webhookResponse = await fetch(webhookUrl, {
-              method: 'POST',
-              body: webhookFormData
-            });
-            
-            if (webhookResponse.ok) {
-              const webhookResult = await webhookResponse.json();
-              console.log('Direct webhook response:', webhookResult);
-              
-              // Process the webhook response
-              const webhookData = Array.isArray(webhookResult) ? webhookResult[0] : webhookResult;
-              if (webhookData && webhookData.output) {
-                setAssessmentResults(webhookData);
-                setIsProcessing(false);
-                setShowResults(true);
-                return; // Exit early since we've handled the response
-              }
-            } else {
-              console.error('Direct webhook call failed:', webhookResponse.status);
-              throw new Error(`Webhook call failed: ${webhookResponse.status}`);
-            }
-          } catch (webhookError) {
-            console.error('Error calling webhook directly:', webhookError);
-            throw new Error(`Failed to process your audio: ${webhookError.message}`);
-          }
-        }
-        
-        // If we get here, either it wasn't a 504 error or the direct webhook call also failed
         throw new Error(result.error || `Server error: ${response.status} ${response.statusText}`);
       }
       
-      // Handle different response formats
+      // The response is an array with a single object containing the results
       const responseData = Array.isArray(result) ? result[0] : result;
       console.log('Response data:', responseData);
       
-      if (responseData && responseData.status === 'processing') {
-        // This is a processing acknowledgment
-        console.log('Processing started with request ID:', responseData.requestId);
-        setRequestId(responseData.requestId);
-        setShowAudioModal(false);
-        setIsProcessing(true);
-        
-        // Start polling for results
-        pollInterval = setInterval(async () => {
-          try {
-            console.log('Polling for results...');
-            const statusEndpoint = process.env.NODE_ENV === 'production'
-              ? `/api/status?requestId=${responseData.requestId}`
-              : `http://localhost:5001/api/status?requestId=${responseData.requestId}`;
-            
-            const statusResponse = await fetch(statusEndpoint);
-            
-            if (statusResponse.ok) {
-              const statusResult = await statusResponse.json();
-              console.log('Status check result:', statusResult);
-              
-              if (statusResult && statusResult.output) {
-                // We have results!
-                clearInterval(pollInterval);
-                setAssessmentResults(statusResult);
-                setIsProcessing(false);
-                setShowResults(true);
-              }
-            } else {
-              console.warn('Status check failed:', statusResponse.status);
-            }
-          } catch (pollError) {
-            console.error('Error polling for results:', pollError);
-          }
-        }, 3000); // Poll every 3 seconds
-        
-        // Set a timeout to stop polling after 30 seconds
-        setTimeout(() => {
-          clearInterval(pollInterval);
-          if (isProcessing) {
-            // If we're still processing after 30 seconds, show a timeout message
-            setIsProcessing(false);
-            alert('Processing is taking longer than expected. Please try again with a shorter audio file.');
-          }
-        }, 30000);
-        
-      } else if (responseData && responseData.output) {
-        // This is a direct result
+      if (responseData && responseData.output) {
+        // Store the assessment results
         setAssessmentResults(responseData);
+        // Close the audio modal and show results
         setShowAudioModal(false);
         setShowResults(true);
         
@@ -288,12 +168,6 @@ function App() {
       console.error('Error submitting form:', error);
       alert(`Error: ${error.message}`);
       setShowAudioModal(false); // Close the audio modal on error
-      setIsProcessing(false); // Reset processing state on error
-      
-      // Clear any polling interval
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
     } finally {
       setIsSubmitting(false);
     }
@@ -414,12 +288,6 @@ function App() {
         onClose={() => !isSubmitting && setShowAudioModal(false)}
         onSubmit={handleAudioSubmit}
         isSubmitting={isSubmitting}
-      />
-      
-      <ProcessingModal
-        isOpen={isProcessing}
-        onClose={() => setIsProcessing(false)}
-        requestId={requestId}
       />
       
       <AssessmentResults 
