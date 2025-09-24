@@ -10,8 +10,9 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-client": "cd client && npm install",
     "install-server": "cd server && npm install",
-    "install-all": "npm install && npm run install-server && npm run install-client",
-    "build": "cd client && npm install && npm run build"
+    "install-api": "cd api && npm install",
+    "install-all": "npm install && npm run install-server && npm run install-client && npm run install-api",
+    "build": "cd client && npm install && npx craco build"
   },
   "repository": {
     "type": "git",

@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:5001",
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.2",
@@ -18,8 +19,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "start": "npx craco start",
+    "build": "npx craco build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -41,7 +42,6 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "@craco/craco": "^7.1.0"
-  }
+  "devDependencies": {}
+
 }

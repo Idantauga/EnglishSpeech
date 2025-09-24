@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
+  "buildCommand": "cd client && npm install && npx craco build",
   "outputDirectory": "client/build",
   "framework": "create-react-app",
   "functions": {
