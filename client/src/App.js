@@ -111,8 +111,8 @@ function App() {
           // Let the browser set the Content-Type with the correct boundary
           headers: {
             'Accept': 'application/json',
-          },
-          credentials: 'include' // Include credentials if needed for CORS
+          }
+          // No credentials needed for n8n webhook
         });
         
         console.log('Response status:', response.status);
