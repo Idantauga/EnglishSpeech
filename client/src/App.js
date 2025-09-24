@@ -1,6 +1,21 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import {
+  Container,
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Box,
+  Slider,
+  Grid,
+  Paper
+} from '@mui/material';
 import AudioInputModal from './components/AudioInputModal';
+import ProcessingModal from './components/ProcessingModal';
 import AssessmentResults from './components/AssessmentResults';
 
 function App() {
@@ -27,6 +42,8 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const [assessmentResults, setAssessmentResults] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [requestId, setRequestId] = useState(null);
 
   const handleWeightChange = (id, value) => {
     const newValue = Math.max(0, parseInt(value) || 0);
@@ -145,14 +162,44 @@ function App() {
         throw new Error(result.error || `Server error: ${response.status} ${response.statusText}`);
       }
       
-      // The response is an array with a single object containing the results
+      // Handle different response formats
       const responseData = Array.isArray(result) ? result[0] : result;
       console.log('Response data:', responseData);
       
-      if (responseData && responseData.output) {
-        // Store the assessment results
+      if (responseData && responseData.status === 'processing') {
+        // This is a processing acknowledgment
+        console.log('Processing started with request ID:', responseData.requestId);
+        setRequestId(responseData.requestId);
+        setShowAudioModal(false);
+        setIsProcessing(true);
+        
+        // In a real app, you would set up polling or websockets here
+        // For now, we'll just show a processing state
+        
+        // Simulate getting results after 10 seconds for demo purposes
+        // In a real app, you would poll an endpoint or use websockets
+        setTimeout(() => {
+          // Simulate results
+          const mockResults = {
+            output: {
+              assessment: {
+                pronunciation: 8,
+                vocabulary: 7,
+                grammar: 8,
+                fluency: 7
+              },
+              feedback: "Your pronunciation is good, but you could improve your vocabulary. Your grammar is strong, and your fluency is developing well."
+            }
+          };
+          
+          setAssessmentResults(mockResults);
+          setIsProcessing(false);
+          setShowResults(true);
+        }, 10000);
+        
+      } else if (responseData && responseData.output) {
+        // This is a direct result
         setAssessmentResults(responseData);
-        // Close the audio modal and show results
         setShowAudioModal(false);
         setShowResults(true);
         
@@ -168,6 +215,7 @@ function App() {
       console.error('Error submitting form:', error);
       alert(`Error: ${error.message}`);
       setShowAudioModal(false); // Close the audio modal on error
+      setIsProcessing(false); // Reset processing state on error
     } finally {
       setIsSubmitting(false);
     }
@@ -288,6 +336,12 @@ function App() {
         onClose={() => !isSubmitting && setShowAudioModal(false)}
         onSubmit={handleAudioSubmit}
         isSubmitting={isSubmitting}
+      />
+      
+      <ProcessingModal
+        isOpen={isProcessing}
+        onClose={() => setIsProcessing(false)}
+        requestId={requestId}
       />
       
       <AssessmentResults 

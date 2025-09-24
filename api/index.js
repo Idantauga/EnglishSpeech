@@ -107,39 +107,41 @@ async function handleCheckEnglish(req, res) {
       knownLength: req.file.size
     });
     
-    // Forward to n8n webhook
-    try {
-      const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
-      console.log('Sending to webhook URL:', webhookUrl);
-      
-      // Set timeout to prevent Vercel function from hanging
-      const response = await axios.post(webhookUrl, formData.getBuffer(), {
-        headers: {
-          ...formData.getHeaders(),
-        },
-        maxContentLength: 15 * 1024 * 1024, // 15MB limit
-        maxBodyLength: 15 * 1024 * 1024,    // 15MB limit
-        timeout: 50000, // 50 second timeout (Vercel function timeout is 60s)
-      });
-      
-      // Forward the response from n8n
-      res.json(response.data);
-    } catch (error) {
-      console.error('Error forwarding request to n8n:', error);
-      
-      // Provide more helpful error message
-      if (error.code === 'ECONNABORTED') {
-        return res.status(504).json({
-          error: 'Request to processing service timed out. Please try with a shorter audio file.',
-          details: 'The audio processing took too long. Try a recording under 30 seconds.'
-        });
-      }
-      
-      res.status(500).json({
-        error: 'Failed to forward request to n8n',
-        details: error.message
-      });
-    }
+    // Generate a unique request ID for tracking
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    
+    // Send immediate acknowledgment to client
+    res.json({
+      status: 'processing',
+      message: 'Your audio is being processed. Results will be available shortly.',
+      requestId: requestId
+    });
+    
+    // Forward to n8n webhook (fire and forget)
+    const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
+    console.log(`Sending request ${requestId} to webhook URL:`, webhookUrl);
+    
+    // Add request ID to form data
+    formData.append('requestId', requestId);
+    
+    // Fire and forget - don't await the response
+    axios.post(webhookUrl, formData.getBuffer(), {
+      headers: {
+        ...formData.getHeaders(),
+      },
+      maxContentLength: 15 * 1024 * 1024, // 15MB limit
+      maxBodyLength: 15 * 1024 * 1024,    // 15MB limit
+      timeout: 300000, // 5 minute timeout for the background process
+    })
+    .then(response => {
+      console.log(`Request ${requestId} completed successfully`);
+    })
+    .catch(error => {
+      console.error(`Error processing request ${requestId}:`, error.message);
+    });
+    
+    // Note: We've already sent the response to the client, so this function will complete
+    // while the webhook processing continues in the background
   } catch (error) {
     console.error('Error processing request:', error);
     
