@@ -5,6 +5,23 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import FormData from 'form-data';
 import axios from 'axios';
+import multer from 'multer';
+
+// Configure multer for memory storage (serverless environment)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept audio files
+    if (file.mimetype.startsWith('audio/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed!'), false);
+    }
+  }
+});
 
 // Initialize Express app
 const app = express();
@@ -38,7 +55,12 @@ async function handleCheckEnglish(req, res) {
     // Extract data from request body
     const { question, studyLevel, criteria } = req.body;
     
-    console.log('Received form data:', { question, studyLevel });
+    console.log('Received form data:', { 
+      question, 
+      studyLevel,
+      hasFile: !!req.file,
+      fileName: req.file?.originalname
+    });
     
     // Create form data for n8n webhook
     const formData = new FormData();
@@ -59,10 +81,18 @@ async function handleCheckEnglish(req, res) {
       }
     }
     
-    // If there's no audio file, return an error
-    if (!req.body.audioData) {
+    // Check for audio file in request (multer puts it in req.file)
+    if (!req.file) {
+      console.log('No audio file found in request');
       return res.status(400).json({ error: 'No audio data provided' });
     }
+    
+    // Add the audio file to formData
+    formData.append('audio', req.file.buffer, {
+      filename: req.file.originalname || 'recording.wav',
+      contentType: req.file.mimetype,
+      knownLength: req.file.size
+    });
     
     // Forward to n8n webhook
     try {
@@ -99,13 +129,13 @@ async function handleCheckEnglish(req, res) {
 }
 
 // Handle check-english endpoint - with /api prefix (from client)
-app.post('/api/check-english', async (req, res) => {
+app.post('/api/check-english', upload.single('audio'), async (req, res) => {
   console.log('Received request at /api/check-english');
   handleCheckEnglish(req, res);
 });
 
 // Handle check-english endpoint - without /api prefix (from Vercel rewrites)
-app.post('/check-english', async (req, res) => {
+app.post('/check-english', upload.single('audio'), async (req, res) => {
   console.log('Received request at /check-english');
   handleCheckEnglish(req, res);
 });
