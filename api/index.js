@@ -49,66 +49,6 @@ app.get('/hello', (req, res) => {
   res.json({ message: 'Hello from Vercel serverless function!' });
 });
 
-// Test endpoint that doesn't use the external webhook
-app.post('/api/test-upload', upload.single('audio'), async (req, res) => {
-  try {
-    // Check if we received a file
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    
-    // Return file information without forwarding to external service
-    res.json({
-      success: true,
-      message: 'File received successfully',
-      file: {
-        filename: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        encoding: req.file.encoding
-      },
-      body: {
-        keys: Object.keys(req.body),
-        question: req.body.question,
-        studyLevel: req.body.studyLevel
-      }
-    });
-  } catch (error) {
-    console.error('Error in test upload:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Same endpoint without /api prefix
-app.post('/test-upload', upload.single('audio'), async (req, res) => {
-  try {
-    // Check if we received a file
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    
-    // Return file information without forwarding to external service
-    res.json({
-      success: true,
-      message: 'File received successfully',
-      file: {
-        filename: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        encoding: req.file.encoding
-      },
-      body: {
-        keys: Object.keys(req.body),
-        question: req.body.question,
-        studyLevel: req.body.studyLevel
-      }
-    });
-  } catch (error) {
-    console.error('Error in test upload:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Helper function to handle check-english requests
 async function handleCheckEnglish(req, res) {
   try {
@@ -147,43 +87,20 @@ async function handleCheckEnglish(req, res) {
       return res.status(400).json({ error: 'No audio data provided' });
     }
     
-    console.log(`Processing audio file: ${req.file.originalname}, size: ${req.file.size} bytes, type: ${req.file.mimetype}`);
-    
-    // Add the audio file to formData - optimize for performance
-    try {
-      // Add a smaller file size limit for better performance
-      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-      
-      if (req.file.size > MAX_FILE_SIZE) {
-        return res.status(413).json({ error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` });
-      }
-      
-      // Add the file to the form data
-      formData.append('audio', req.file.buffer, {
-        filename: req.file.originalname || 'recording.wav',
-        contentType: req.file.mimetype,
-        knownLength: req.file.size
-      });
-    } catch (error) {
-      console.error('Error processing audio file:', error);
-      return res.status(500).json({ error: 'Failed to process audio file', details: error.message });
-    }
+    // Add the audio file to formData
+    formData.append('audio', req.file.buffer, {
+      filename: req.file.originalname || 'recording.wav',
+      contentType: req.file.mimetype,
+      knownLength: req.file.size
+    });
     
     // Forward to n8n webhook
     try {
       const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
       console.log('Sending to webhook URL:', webhookUrl);
       
-      // Set timeout to 50 seconds (just under the 60 second function limit)
-      const timeoutMs = 50000;
-      
-      // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timed out')), timeoutMs);
-      });
-      
-      // Create the actual request promise
-      const requestPromise = axios.post(webhookUrl, formData.getBuffer(), {
+      // Use formData.getBuffer() to get the raw form data with proper headers
+      const response = await axios.post(webhookUrl, formData.getBuffer(), {
         headers: {
           ...formData.getHeaders(),
         },
@@ -191,43 +108,14 @@ async function handleCheckEnglish(req, res) {
         maxBodyLength: Infinity,
       });
       
-      // Race the request against the timeout
-      const response = await Promise.race([requestPromise, timeoutPromise]);
-      
       // Forward the response from n8n
       res.json(response.data);
     } catch (error) {
       console.error('Error forwarding request to n8n:', error);
       
-      // Check if it's a timeout error
-      if (error.message === 'Request timed out') {
-        return res.status(504).json({
-          error: 'Gateway Timeout',
-          message: 'The request to the external service timed out. Please try again with a smaller audio file.',
-          details: 'The n8n webhook did not respond within the allowed time limit.'
-        });
-      }
-      
-      // Check for axios specific errors
-      if (error.isAxiosError) {
-        const statusCode = error.response?.status || 500;
-        const errorMessage = error.response?.data?.message || error.message;
-        
-        console.error(`Axios error: ${statusCode} - ${errorMessage}`);
-        console.error('Response data:', error.response?.data);
-        
-        return res.status(statusCode).json({
-          error: 'External Service Error',
-          message: errorMessage,
-          details: `Status code: ${statusCode}`
-        });
-      }
-      
-      // Generic error
       res.status(500).json({
         error: 'Failed to forward request to n8n',
-        message: error.message,
-        details: error.stack?.split('\n')[0] || 'No stack trace available'
+        details: error.message
       });
     }
   } catch (error) {
@@ -240,16 +128,192 @@ async function handleCheckEnglish(req, res) {
   }
 }
 
-// Handle check-english endpoint - with /api prefix (from client)
-app.post('/api/check-english', upload.single('audio'), async (req, res) => {
+// Handle form submission with audio file - with /api prefix (from client)
+app.post('/api/check-english', (req, res) => {
   console.log('Received request at /api/check-english');
-  handleCheckEnglish(req, res);
+  const uploadHandler = upload.single('audio');
+  
+  uploadHandler(req, res, async (err) => {
+    try {
+      if (err) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
+        } else if (err.message === 'Only audio files are allowed!') {
+          return res.status(400).json({ error: 'Only audio files are allowed' });
+        }
+        throw err;
+      }
+      
+      // Get form fields from the request body
+      const { question, studyLevel, criteria } = req.body;
+      const audioFile = req.file;
+      
+      console.log('Received form data:', {
+        question,
+        studyLevel,
+        audioFile: audioFile ? `${audioFile.originalname} (${audioFile.size} bytes)` : 'Not provided'
+      });
+      
+      if (!audioFile) {
+        return res.status(400).json({ error: 'No audio file provided' });
+      }
+
+      // Create form data for n8n webhook
+      const formData = new FormData();
+      
+      // Add the audio file buffer to form data
+      formData.append('audio', audioFile.buffer, {
+        filename: audioFile.originalname || 'recording.wav',
+        contentType: audioFile.mimetype,
+        knownLength: audioFile.size
+      });
+      
+      // Add other form fields
+      if (question) formData.append('question', question);
+      if (studyLevel) formData.append('studyLevel', studyLevel);
+      
+      // Handle criteria as JSON
+      if (criteria) {
+        try {
+          // Verify it's valid JSON by parsing and stringifying again
+          const criteriaObj = JSON.parse(criteria);
+          console.log('Criteria parsed successfully:', criteriaObj);
+          formData.append('criteria', JSON.stringify(criteriaObj));
+        } catch (e) {
+          console.warn('Failed to parse criteria as JSON, sending as-is:', e);
+          formData.append('criteria', criteria);
+        }
+      }
+
+      console.log('Forwarding request to n8n webhook...');
+      
+      // Forward to n8n webhook
+      try {
+        const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
+        console.log('Sending to webhook URL:', webhookUrl);
+        
+        // Use formData.getBuffer() to get the raw form data with proper headers
+        const response = await axios.post(webhookUrl, formData.getBuffer(), {
+          headers: {
+            ...formData.getHeaders(),
+          },
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+        });
+
+        // Forward the response from n8n
+        res.json(response.data);
+      } catch (error) {
+        console.error('Error forwarding request to n8n:', error);
+        
+        res.status(500).json({
+          error: 'Failed to forward request to n8n',
+          details: error.message
+        });
+      }
+    } catch (error) {
+      console.error('Error processing request:', error);
+      
+      res.status(500).json({
+        error: 'Failed to process request',
+        details: error.message
+      });
+    }
+  });
 });
 
-// Handle check-english endpoint - without /api prefix (from Vercel rewrites)
-app.post('/check-english', upload.single('audio'), async (req, res) => {
+// Handle form submission with audio file - without /api prefix (from Vercel rewrites)
+app.post('/check-english', (req, res) => {
   console.log('Received request at /check-english');
-  handleCheckEnglish(req, res);
+  const uploadHandler = upload.single('audio');
+  
+  uploadHandler(req, res, async (err) => {
+    try {
+      if (err) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
+        } else if (err.message === 'Only audio files are allowed!') {
+          return res.status(400).json({ error: 'Only audio files are allowed' });
+        }
+        throw err;
+      }
+      
+      // Get form fields from the request body
+      const { question, studyLevel, criteria } = req.body;
+      const audioFile = req.file;
+      
+      console.log('Received form data:', {
+        question,
+        studyLevel,
+        audioFile: audioFile ? `${audioFile.originalname} (${audioFile.size} bytes)` : 'Not provided'
+      });
+      
+      if (!audioFile) {
+        return res.status(400).json({ error: 'No audio file provided' });
+      }
+
+      // Create form data for n8n webhook
+      const formData = new FormData();
+      
+      // Add the audio file buffer to form data
+      formData.append('audio', audioFile.buffer, {
+        filename: audioFile.originalname || 'recording.wav',
+        contentType: audioFile.mimetype,
+        knownLength: audioFile.size
+      });
+      
+      // Add other form fields
+      if (question) formData.append('question', question);
+      if (studyLevel) formData.append('studyLevel', studyLevel);
+      
+      // Handle criteria as JSON
+      if (criteria) {
+        try {
+          // Verify it's valid JSON by parsing and stringifying again
+          const criteriaObj = JSON.parse(criteria);
+          console.log('Criteria parsed successfully:', criteriaObj);
+          formData.append('criteria', JSON.stringify(criteriaObj));
+        } catch (e) {
+          console.warn('Failed to parse criteria as JSON, sending as-is:', e);
+          formData.append('criteria', criteria);
+        }
+      }
+
+      console.log('Forwarding request to n8n webhook...');
+      
+      // Forward to n8n webhook
+      try {
+        const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
+        console.log('Sending to webhook URL:', webhookUrl);
+        
+        // Use formData.getBuffer() to get the raw form data with proper headers
+        const response = await axios.post(webhookUrl, formData.getBuffer(), {
+          headers: {
+            ...formData.getHeaders(),
+          },
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+        });
+
+        // Forward the response from n8n
+        res.json(response.data);
+      } catch (error) {
+        console.error('Error forwarding request to n8n:', error);
+        
+        res.status(500).json({
+          error: 'Failed to forward request to n8n',
+          details: error.message
+        });
+      }
+    } catch (error) {
+      console.error('Error processing request:', error);
+      
+      res.status(500).json({
+        error: 'Failed to process request',
+        details: error.message
+      });
+    }
+  });
 });
 
 // Export the Express API
