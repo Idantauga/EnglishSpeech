@@ -159,6 +159,61 @@ function App() {
           statusText: response.statusText,
           result
         });
+        
+        // If we get a 504 Gateway Timeout, try to call the webhook directly
+        if (response.status === 504) {
+          console.log('Backend timed out, attempting direct webhook call...');
+          setShowAudioModal(false);
+          setIsProcessing(true);
+          
+          // Create a new FormData for the direct webhook call
+          const webhookFormData = new FormData();
+          webhookFormData.append('audio', file);
+          webhookFormData.append('question', question);
+          webhookFormData.append('studyLevel', studentLevel);
+          
+          // Add criteria
+          const criteriaData = parameters.map(param => ({
+            name: param.name,
+            description: param.description,
+            weight: param.weight
+          }));
+          webhookFormData.append('criteria', JSON.stringify(criteriaData));
+          
+          // Call the webhook directly
+          try {
+            const webhookUrl = 'https://tauga.app.n8n.cloud/webhook/english-test';
+            console.log('Calling webhook directly:', webhookUrl);
+            
+            // Make the request
+            const webhookResponse = await fetch(webhookUrl, {
+              method: 'POST',
+              body: webhookFormData
+            });
+            
+            if (webhookResponse.ok) {
+              const webhookResult = await webhookResponse.json();
+              console.log('Direct webhook response:', webhookResult);
+              
+              // Process the webhook response
+              const webhookData = Array.isArray(webhookResult) ? webhookResult[0] : webhookResult;
+              if (webhookData && webhookData.output) {
+                setAssessmentResults(webhookData);
+                setIsProcessing(false);
+                setShowResults(true);
+                return; // Exit early since we've handled the response
+              }
+            } else {
+              console.error('Direct webhook call failed:', webhookResponse.status);
+              throw new Error(`Webhook call failed: ${webhookResponse.status}`);
+            }
+          } catch (webhookError) {
+            console.error('Error calling webhook directly:', webhookError);
+            throw new Error(`Failed to process your audio: ${webhookError.message}`);
+          }
+        }
+        
+        // If we get here, either it wasn't a 504 error or the direct webhook call also failed
         throw new Error(result.error || `Server error: ${response.status} ${response.statusText}`);
       }
       
@@ -173,26 +228,9 @@ function App() {
         setShowAudioModal(false);
         setIsProcessing(true);
         
-        // In a real app, you would set up polling or websockets here
-        // For now, we'll just show a processing state
-        
-        // Simulate getting results after 10 seconds for demo purposes
-        // In a real app, you would poll an endpoint or use websockets
+        // In a production app, you would poll an endpoint to check status
+        // For now, we'll just wait a bit and then show results
         setTimeout(() => {
-          // Simulate results
-          const mockResults = {
-            output: {
-              assessment: {
-                pronunciation: 8,
-                vocabulary: 7,
-                grammar: 8,
-                fluency: 7
-              },
-              feedback: "Your pronunciation is good, but you could improve your vocabulary. Your grammar is strong, and your fluency is developing well."
-            }
-          };
-          
-          setAssessmentResults(mockResults);
           setIsProcessing(false);
           setShowResults(true);
         }, 10000);
