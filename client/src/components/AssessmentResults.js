@@ -11,9 +11,10 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   // Extract weighted average score from the new response format
   const weightedAverage = results?.weightedAverage?.score;
   
-  // Extract duration and word count from the new response format
+  // Extract duration, word count, and transcript from the new response format
   const duration = results?.duration;
   const wordCount = results?.word_count;
+  const transcript = results?.transcript;
   
   if (!open || Object.keys(assessment).length === 0) {
     return null;
@@ -199,6 +200,37 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 )}
               </Box>
             )}
+          </Box>
+        )}
+        
+        {/* Transcript Section */}
+        {transcript && (
+          <Box sx={{ 
+            mb: 4,
+            p: 3,
+            bgcolor: 'background.paper',
+            borderRadius: 1,
+            border: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Typography variant="subtitle1" sx={{ 
+              color: 'text.primary',
+              fontWeight: 600,
+              mb: 2
+            }}>
+              Transcript
+            </Typography>
+            <Box sx={{ 
+              p: 2, 
+              bgcolor: 'background.default', 
+              borderRadius: 'var(--border-radius)',
+              border: '1px solid var(--border-color)',
+              lineHeight: 1.6
+            }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {transcript}
+              </Typography>
+            </Box>
           </Box>
         )}
         

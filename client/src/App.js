@@ -19,10 +19,11 @@ function App() {
     "Describe your best friend and his hobbies."
   ];
   const [parameters, setParameters] = useState([
-    { id: 1, name: 'Vocabulary', description: 'Richness and appropriateness of vocabulary', weight: 1 },
-    { id: 2, name: 'Clarity', description: 'Clarity of expression', weight: 1 },
-    { id: 3, name: 'Fluency', description: 'Fluency and flow of speech', weight: 1 },
-    { id: 4, name: 'Grammar', description: 'Grammar and syntax correctness', weight: 1 }
+    { id: 1, name: 'Vocabulary', description: 'Richness and appropriateness of vocabulary', weight: 100 },
+    { id: 2, name: 'Articulation', description: 'Clarity of expression', weight: 100 },
+    { id: 3, name: 'Fluency', description: 'Fluency and flow of speech', weight: 100 },
+    { id: 4, name: 'Grammar', description: 'Grammatical accuracy and correctness', weight: 100 },
+    { id: 5, name: 'Syntax', description: 'Proper sentence structure and word order', weight: 100 }
   ]);
   
   // Audio recording states
