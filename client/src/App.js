@@ -88,26 +88,24 @@ function App() {
         } 
       });
       
-      // Create new MediaRecorder with mime type optimized for playback navigation
+      // Create new MediaRecorder with mime type compatible with OpenAI
       let options = {};
       
-      // Try different formats in order of preference for better playback control
-      // MP3 is best for playback navigation but not always supported
+      // Try formats in order of preference, prioritizing OpenAI-compatible formats
+      // OpenAI supports: flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm
       if (MediaRecorder.isTypeSupported('audio/mp3')) {
         options = { mimeType: 'audio/mp3' };
         console.log('Using audio/mp3 format for recording');
-      } else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
-        options = { mimeType: 'audio/mpeg' };
-        console.log('Using audio/mpeg format for recording');
       } else if (MediaRecorder.isTypeSupported('audio/wav')) {
         options = { mimeType: 'audio/wav' };
         console.log('Using audio/wav format for recording');
-      } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=pcm')) {
-        options = { mimeType: 'audio/webm;codecs=pcm' }; // Uncompressed audio for better seeking
-        console.log('Using audio/webm;codecs=pcm format for recording');
       } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        // Use standard webm without specifying codecs for better compatibility
         options = { mimeType: 'audio/webm' };
         console.log('Using audio/webm format for recording');
+      } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+        options = { mimeType: 'audio/ogg' };
+        console.log('Using audio/ogg format for recording');
       } else {
         console.log('Using default recording format');
       }
@@ -125,34 +123,41 @@ function App() {
       // Handle recording stop event with error handling
       mediaRecorderRef.current.onstop = () => {
         try {
-          // Create audio blob and URL with proper MIME type handling
-          let mimeType = mediaRecorderRef.current.mimeType || '';
-          let fileExtension = 'webm'; // Default extension
+          // Get the original MIME type from the MediaRecorder for playback
+          const originalMimeType = mediaRecorderRef.current.mimeType || 'audio/webm';
           
-          // Determine the correct file extension based on MIME type
-          if (mimeType.includes('mp3') || mimeType.includes('mpeg')) {
-            fileExtension = 'mp3';
-            // Ensure we're using the correct MIME type for MP3
-            mimeType = 'audio/mpeg';
-          } else if (mimeType.includes('wav')) {
-            fileExtension = 'wav';
-            mimeType = 'audio/wav';
-          } else if (mimeType.includes('webm')) {
-            fileExtension = 'webm';
-            mimeType = 'audio/webm';
+          // Create the audio blob with the original MIME type for proper playback
+          const audioBlob = new Blob(audioChunksRef.current, { type: originalMimeType });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          
+          // For the file that will be sent to the endpoint, we'll strip codec info
+          let cleanMimeType = originalMimeType;
+          if (cleanMimeType.includes(';')) {
+            cleanMimeType = cleanMimeType.split(';')[0];
           }
           
-          console.log('Creating blob with MIME type:', mimeType);
+          // Determine the appropriate file extension based on clean MIME type
+          let fileExtension;
+          if (cleanMimeType.includes('mp3') || cleanMimeType.includes('mpeg')) {
+            fileExtension = 'mp3';
+          } else if (cleanMimeType.includes('wav')) {
+            fileExtension = 'wav';
+          } else if (cleanMimeType.includes('ogg')) {
+            fileExtension = 'ogg';
+          } else if (cleanMimeType.includes('webm')) {
+            fileExtension = 'webm';
+          } else {
+            // Default to webm as it's widely supported
+            fileExtension = 'webm';
+          }
           
-          // Create the blob with the correct MIME type
-          const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          const file = new File([audioBlob], `recording.${fileExtension}`, { type: mimeType });
+          // Create a file with the clean MIME type for endpoint submission
+          const file = new File([audioBlob], `recording.${fileExtension}`, { type: cleanMimeType });
           
-          // Log file details for debugging
-          console.log('Created audio file:', {
+          console.log('Created recording file:', {
             name: file.name,
-            type: file.type,
+            type: cleanMimeType,
+            originalType: originalMimeType,
             size: Math.round(file.size / 1024) + 'KB'
           });
           
@@ -277,6 +282,7 @@ function App() {
     }
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -332,6 +338,7 @@ function App() {
       // Create FormData and append fields
       const formData = new FormData();
       formData.append('audio', selectedFile);
+      console.log('Submitting audio file as-is:', selectedFile.name, selectedFile.type, Math.round(selectedFile.size / 1024) + 'KB');
       formData.append('question', question);
       formData.append('studyLevel', studentLevel);
       
