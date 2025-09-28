@@ -1,13 +1,8 @@
 import React from 'react';
 import { Modal, Button, Typography, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useLanguage } from '../contexts/LanguageContext';
-import { getTranslation } from '../translations';
-import './AssessmentResults.css';
 
 const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
-  const { language } = useLanguage();
-  
   // Safely extract the data from the results
   const output = results?.output || {};
   const assessment = output?.assessment || {};
@@ -48,13 +43,13 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
     return (
       <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
             Score: {Math.round(score)}/100
           </Typography>
         </Box>
-        <Box className="score-bar-container" sx={{ 
+        <Box sx={{ 
           width: '100%', 
-          bgcolor: 'background.default',
+          bgcolor: 'var(--bg-color)',
           borderRadius: 1,
           overflow: 'hidden',
           height: 8,
@@ -80,7 +75,6 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
       onClose={onClose}
       aria-labelledby="assessment-results-title"
       aria-describedby="assessment-results-description"
-      className="assessment-results-modal"
     >
       <Box sx={{
         position: 'absolute',
@@ -90,8 +84,8 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
         width: '90%',
         maxWidth: 800,
         maxHeight: '90vh',
-        bgcolor: 'background.paper',
-        color: 'text.primary',
+        bgcolor: 'var(--card-bg)',
+        color: 'var(--text-color)',
         boxShadow: 24,
         p: 4,
         borderRadius: 'var(--border-radius)',
@@ -105,22 +99,22 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
           mb: 2,
           pb: 1,
           borderBottom: '1px solid',
-          borderColor: 'divider'
+          borderColor: 'var(--border-color)'
         }}>
           <Typography variant="h5" component="h2" id="assessment-results-title" sx={{ 
-            color: 'text.primary',
+            color: 'var(--text-color)',
             fontWeight: 600
           }}>
-            {getTranslation(language, 'assessmentResults')}
+            Assessment Results
           </Typography>
           <IconButton 
             aria-label="close" 
             onClick={onClose}
             sx={{ 
-              color: 'text.secondary',
+              color: 'var(--text-secondary)',
               '&:hover': {
-                color: 'text.primary',
-                bgcolor: 'action.hover'
+                color: 'var(--text-color)',
+                bgcolor: 'rgba(255, 255, 255, 0.05)'
               }
             }}
           >
@@ -130,20 +124,20 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
         
         {/* Question and Audio Player Section */}
         {(question || audioURL) && (
-          <Box className="content-section" sx={{ 
+          <Box sx={{ 
             mb: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'var(--border-color)'
           }}>
             {question && (
               <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                  {getTranslation(language, 'question')}
+                <Typography variant="subtitle2" sx={{ color: 'var(--text-secondary)', mb: 0.5 }}>
+                  Question
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography variant="body1" sx={{ fontWeight: 500, color: 'var(--text-color)' }}>
                   {question}
                 </Typography>
               </Box>
@@ -151,8 +145,8 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             
             {audioURL && (
               <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1 }}>
-                  {getTranslation(language, 'yourResponse')}
+                <Typography variant="subtitle2" sx={{ color: 'var(--text-secondary)', mb: 1 }}>
+                  Your Response
                 </Typography>
                 <Box sx={{ 
                   display: 'flex',
@@ -168,7 +162,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                       width: '100%', 
                       maxWidth: '100%',
                       borderRadius: '8px',
-                      backgroundColor: 'rgba(0,0,0,0.04)'
+                      backgroundColor: 'var(--bg-color)'
                     }}
                   />
                 </Box>
@@ -184,21 +178,21 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                   }}>
                     {duration && (
                       <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          {getTranslation(language, 'duration')}
+                        <Typography variant="caption" sx={{ color: 'var(--text-secondary)', display: 'block' }}>
+                          Duration
                         </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'var(--text-color)' }}>
                           {formatDuration(duration)}
                         </Typography>
                       </Box>
                     )}
                     {wordCount && (
                       <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          {getTranslation(language, 'wordCount')}
+                        <Typography variant="caption" sx={{ color: 'var(--text-secondary)', display: 'block' }}>
+                          Word Count
                         </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                          {wordCount} {getTranslation(language, 'words')}
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'var(--text-color)' }}>
+                          {wordCount} words
                         </Typography>
                       </Box>
                     )}
@@ -211,29 +205,29 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
         
         {/* Transcript Section */}
         {transcript && (
-          <Box className="content-section" sx={{ 
+          <Box sx={{ 
             mb: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'var(--border-color)'
           }}>
             <Typography variant="subtitle1" sx={{ 
-              color: 'text.primary',
+              color: 'var(--text-color)',
               fontWeight: 600,
               mb: 2
             }}>
-              {getTranslation(language, 'transcript')}
+              Transcript
             </Typography>
-            <Box className="transcript-content" sx={{ 
+            <Box sx={{ 
               p: 2, 
-              bgcolor: 'background.default', 
+              bgcolor: 'var(--bg-color)', 
               borderRadius: 'var(--border-radius)',
               border: '1px solid var(--border-color)',
               lineHeight: 1.6
             }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ color: 'var(--text-secondary)' }}>
                 {transcript}
               </Typography>
             </Box>
@@ -242,13 +236,13 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
         
         {/* Weighted Average Score */}
         {weightedAverage !== undefined && (
-          <Box className="content-section" sx={{ 
+          <Box sx={{ 
             mb: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'var(--border-color)'
           }}>
             <Box sx={{ 
               display: 'flex',
@@ -257,18 +251,18 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               mb: 2
             }}>
               <Typography variant="subtitle1" sx={{ 
-                color: 'text.primary',
+                color: 'var(--text-color)',
                 fontWeight: 600
               }}>
-                {getTranslation(language, 'overallAssessment')}
+                Overall Assessment
               </Typography>
               <Box sx={{ 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1
               }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {getTranslation(language, 'score')}
+                <Typography variant="body2" sx={{ color: 'var(--text-secondary)' }}>
+                  Score:
                 </Typography>
                 <Typography 
                   variant="subtitle1" 
@@ -289,7 +283,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             
             <Typography variant="body2" sx={{ 
               mt: 2, 
-              color: 'text.secondary',
+              color: 'var(--text-secondary)',
               fontSize: '0.875rem',
               fontStyle: 'italic'
             }}>
@@ -299,13 +293,13 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
         )}
 
         {Object.entries(assessment).map(([category, data]) => (
-          <Box key={category} className="content-section" sx={{ 
+          <Box key={category} sx={{ 
             mb: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider',
+            borderColor: 'var(--border-color)',
             '&:last-child': {
               mb: 0
             }
@@ -313,7 +307,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             <Typography variant="subtitle1" sx={{ 
               textTransform: 'capitalize',
               mb: 2,
-              color: 'text.primary',
+              color: 'var(--text-color)',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
@@ -321,7 +315,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             }}>
               <span>{category.split('_').join(' ')}</span>
               <Typography component="span" variant="body2" sx={{ 
-                color: 'text.secondary',
+                color: 'var(--text-secondary)',
                 fontWeight: 500,
                 fontFeatureNumeric: 'tabular-nums'
               }}>
@@ -331,7 +325,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             {renderScoreBar(data.score)}
             <Typography variant="body2" sx={{ 
               mt: 2,
-              color: 'text.secondary',
+              color: 'var(--text-secondary)',
               lineHeight: 1.6
             }}>
               {data.comment}
@@ -341,10 +335,10 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
 
         {/* Great Parts Section */}
         {feedback?.great_parts && feedback.great_parts.length > 0 && (
-          <Box className="success-section" sx={{ 
+          <Box sx={{ 
             mt: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
             borderColor: 'var(--success-color)',
@@ -354,7 +348,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             <Typography 
               variant="subtitle1" 
               sx={{ 
-                color: 'text.primary',
+                color: 'var(--text-color)',
                 fontWeight: 600,
                 mb: 2,
                 display: 'flex',
@@ -362,7 +356,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 gap: 1
               }}
             >
-              <span>👏</span> {getTranslation(language, 'whatYouDidWell')}
+              <span>👏</span> What You Did Well
             </Typography>
             <Box component="ul" sx={{ 
               pl: 3,
@@ -382,7 +376,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             }}>
               {feedback.great_parts.map((point, index) => (
                 <li key={index}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                  <Typography variant="body2" sx={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                     {point}
                   </Typography>
                 </li>
@@ -393,18 +387,18 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
 
         {/* Improvement Suggestions Section */}
         {feedback?.improvement_suggestions && feedback.improvement_suggestions.length > 0 && (
-          <Box className="content-section improvement-suggestions" sx={{ 
+          <Box sx={{ 
             mt: 4,
             p: 3,
-            bgcolor: 'background.paper',
+            bgcolor: 'var(--input-bg)',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'var(--border-color)'
           }}>
             <Typography 
               variant="subtitle1" 
               sx={{ 
-                color: 'text.primary',
+                color: 'var(--text-color)',
                 fontWeight: 600,
                 mb: 2,
                 display: 'flex',
@@ -412,7 +406,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 gap: 1
               }}
             >
-              <span>✨</span> {getTranslation(language, 'improvementSuggestions')}
+              <span>✨</span> Improvement Suggestions
             </Typography>
             <Box component="ul" sx={{ 
               pl: 3,
@@ -425,14 +419,14 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                   content: '"•"',
                   position: 'absolute',
                   left: -16,
-                  color: 'primary.main',
+                  color: 'var(--primary-color)',
                   fontWeight: 'bold'
                 }
               }
             }}>
               {feedback.improvement_suggestions.map((suggestion, index) => (
                 <li key={index}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                  <Typography variant="body2" sx={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                     {suggestion}
                   </Typography>
                 </li>
@@ -447,7 +441,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
           justifyContent: 'flex-end',
           pt: 2,
           borderTop: '1px solid',
-          borderColor: 'divider'
+          borderColor: 'var(--border-color)'
         }}>
           <Button 
             onClick={onClose} 
@@ -466,7 +460,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               }
             }}
           >
-            {getTranslation(language, 'done')}
+            Done
           </Button>
         </Box>
       </Box>

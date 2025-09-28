@@ -1,3 +1,49 @@
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .form-group label {
+  text-align: right;
+}
+
+[dir="rtl"] .question-type-toggle {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .radio-group {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .radio-label {
+  padding-left: 0;
+  padding-right: 2rem;
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .radio-custom {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .parameter-item {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .parameter-weight {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .audio-options {
+  text-align: center;
+}
+
+[dir="rtl"] .form-actions {
+  justify-content: center;
+}
+
 /* Base Styles */
 :root {
   --primary-color: #4a6cf7;
@@ -530,7 +576,7 @@ audio {
 /* Submit Button */
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center; /* Changed from flex-end to center */
   margin-top: 2rem;
 }
 
@@ -557,15 +603,17 @@ audio {
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
+  padding: 0.85rem 2rem;
+  font-weight: 600;
+  font-size: 1.05rem;
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-width: 100px;
+  min-width: 220px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .submit-btn:disabled {

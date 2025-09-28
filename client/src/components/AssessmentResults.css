@@ -1,0 +1,118 @@
+/* Dark theme overrides for AssessmentResults Modal */
+.assessment-results-modal .MuiModal-root {
+  background-color: rgba(26, 28, 43, 0.8) !important;
+}
+
+.assessment-results-modal .MuiBox-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.assessment-results-modal .MuiTypography-root {
+  color: var(--text-color) !important;
+}
+
+.assessment-results-modal .MuiTypography-body2,
+.assessment-results-modal .MuiTypography-caption {
+  color: var(--text-secondary) !important;
+}
+
+.assessment-results-modal .MuiIconButton-root {
+  color: var(--text-secondary) !important;
+}
+
+.assessment-results-modal .MuiIconButton-root:hover {
+  color: var(--text-color) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Content sections */
+.assessment-results-modal .content-section {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+/* Audio player styling */
+.assessment-results-modal audio {
+  background-color: var(--input-bg) !important;
+  border-radius: var(--border-radius) !important;
+  /* Removed color inversion to keep original playback controls */
+}
+
+/* Score bars */
+.assessment-results-modal .score-bar-container {
+  background-color: var(--input-bg) !important;
+}
+
+/* Transcript section */
+.assessment-results-modal .transcript-content {
+  background-color: var(--bg-color) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Button styling */
+.assessment-results-modal .MuiButton-contained {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.assessment-results-modal .MuiButton-contained:hover {
+  background-color: var(--primary-dark) !important;
+  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3) !important;
+}
+
+/* Dividers */
+.assessment-results-modal .MuiBox-root[sx*="borderBottom"],
+.assessment-results-modal .MuiBox-root[sx*="borderTop"] {
+  border-color: var(--border-color) !important;
+}
+
+/* Success section styling */
+.assessment-results-modal .success-section {
+  background-color: var(--input-bg) !important;
+  border-color: var(--success-color) !important;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* List items */
+.assessment-results-modal ul li::before {
+  color: var(--success-color) !important;
+}
+
+.assessment-results-modal .improvement-suggestions ul li::before {
+  color: var(--primary-color) !important;
+}
+
+/* RTL Support */
+[dir="rtl"] .assessment-results-modal .MuiBox-root {
+  text-align: right !important;
+}
+
+[dir="rtl"] .assessment-results-modal ul {
+  padding-left: 0 !important;
+  padding-right: 3rem !important;
+}
+
+[dir="rtl"] .assessment-results-modal ul li {
+  padding-left: 0 !important;
+  padding-right: 1rem !important;
+}
+
+[dir="rtl"] .assessment-results-modal ul li::before {
+  left: auto !important;
+  right: -16px !important;
+}
+
+/* RTL flex direction for header */
+[dir="rtl"] .assessment-results-modal .MuiBox-root[sx*="justifyContent"] {
+  flex-direction: row-reverse !important;
+}
+
+/* RTL gap adjustment */
+[dir="rtl"] .assessment-results-modal .MuiBox-root[sx*="gap"] {
+  flex-direction: row-reverse !important;
+}
