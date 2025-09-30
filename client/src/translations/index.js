@@ -89,7 +89,18 @@ export const translations = {
     done: "Done",
     
     // Language switcher
-    languageSwitch: "עברית"
+    languageSwitch: "עברית",
+    
+    // Word Count Distribution
+    wordCountDistribution: "Word Count Distribution",
+    yourWordCount: "Your word count",
+    average: "Average",
+    percentile: "Percentile",
+    wordCountMuchShorter: "Your response is significantly shorter than average.",
+    wordCountShorter: "Your response is somewhat shorter than average.",
+    wordCountAverage: "Your response length is about average.",
+    wordCountLonger: "Your response is somewhat longer than average.",
+    wordCountMuchLonger: "Your response is significantly longer than average."
   },
   
   hebrew: {
@@ -182,7 +193,18 @@ export const translations = {
     done: "סיום",
     
     // Language switcher
-    languageSwitch: "English"
+    languageSwitch: "English",
+    
+    // Word Count Distribution
+    wordCountDistribution: "התפלגות מספר מילים",
+    yourWordCount: "מספר המילים שלך",
+    average: "ממוצע",
+    percentile: "אחוזון",
+    wordCountMuchShorter: "התשובה שלך קצרה באופן משמעותי מהממוצע.",
+    wordCountShorter: "התשובה שלך קצת קצרה מהממוצע.",
+    wordCountAverage: "אורך התשובה שלך בערך ממוצע.",
+    wordCountLonger: "התשובה שלך קצת ארוכה מהממוצע.",
+    wordCountMuchLonger: "התשובה שלך ארוכה באופן משמעותי מהממוצע."
   }
 };
 

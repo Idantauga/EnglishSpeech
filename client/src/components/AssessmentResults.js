@@ -3,6 +3,7 @@ import { Modal, Button, Typography, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTranslation } from '../translations';
+import WordCountBellCurve from './WordCountBellCurve';
 import './AssessmentResults.css';
 
 const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
@@ -20,6 +21,17 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   const duration = results?.duration;
   const wordCount = results?.word_count;
   const transcript = results?.transcript;
+  
+  // Extract statistical parameters for word count distribution
+  // These parameters are at the top level of the response array's first item
+  const sampleSize = results?.sample_size;
+  const populationMean = results?.population_mean;
+  const populationStdDev = results?.population_standard_deviation;
+  
+  // Debug logging
+  console.log('Assessment results data:', results);
+  console.log('Word count:', wordCount);
+  console.log('Statistical parameters:', { sampleSize, populationMean, populationStdDev });
   
   if (!open || Object.keys(assessment).length === 0) {
     return null;
@@ -237,6 +249,25 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 {transcript}
               </Typography>
             </Box>
+          </Box>
+        )}
+        
+        {/* Word Count Distribution Section */}
+        {wordCount && populationMean && populationStdDev && (
+          <Box className="content-section" sx={{ 
+            mb: 4,
+            p: 3,
+            bgcolor: 'background.paper',
+            borderRadius: 1,
+            border: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <WordCountBellCurve
+              wordCount={parseInt(wordCount)}
+              populationMean={populationMean}
+              populationStdDev={populationStdDev}
+              sampleSize={sampleSize}
+            />
           </Box>
         )}
         

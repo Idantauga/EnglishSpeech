@@ -1,0 +1,27 @@
+.word-count-distribution {
+  width: 100%;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Style for the white circle point */
+.chart-container canvas {
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.7));
+}
+
+/* Enhance white point visibility */
+.user-point {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+/* RTL Support */
+[dir="rtl"] .word-count-distribution {
+  direction: rtl;
+}
+
+[dir="rtl"] .chart-container {
+  direction: ltr; /* Charts should always be LTR */
+}
