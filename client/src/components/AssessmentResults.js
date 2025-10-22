@@ -53,23 +53,30 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
     // Score is already out of 100, so we use it directly for percentage
     const percentage = score;
     const color = 
-      score >= 70 ? 'var(--success-color)' : 
-      score >= 40 ? 'var(--warning-color, #ff9800)' : 
-      'var(--danger-color, #f44336)';
+      score >= 70 ? '#10b981' : // Green
+      score >= 40 ? '#f59e0b' : // Yellow/Orange
+      '#ef4444'; // Red
       
     return (
-      <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            Score: {Math.round(score)}/100
+      <Box sx={{ width: '100%', mt: 1.5, mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+            Score
+          </Typography>
+          <Typography variant="caption" sx={{ 
+            color: color,
+            fontWeight: 600,
+            fontSize: '0.875rem'
+          }}>
+            {Math.round(score)}/100
           </Typography>
         </Box>
         <Box className="score-bar-container" sx={{ 
           width: '100%', 
-          bgcolor: 'background.default',
-          borderRadius: 1,
+          bgcolor: 'rgba(0,0,0,0.08)',
+          borderRadius: 2,
           overflow: 'hidden',
-          height: 8,
+          height: 12,
           position: 'relative'
         }}>
           <Box
@@ -78,7 +85,11 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               height: '100%',
               bgcolor: color,
               transition: 'width 0.5s ease-in-out',
-              borderRadius: 'inherit'
+              borderRadius: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              paddingRight: '4px'
             }}
           />
         </Box>
@@ -356,7 +367,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 fontWeight: 500,
                 fontFeatureNumeric: 'tabular-nums'
               }}>
-                {Math.round(data.score)}%
+                {Math.round(data.score)}/100
               </Typography>
             </Typography>
             {renderScoreBar(data.score)}
