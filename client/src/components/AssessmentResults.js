@@ -53,30 +53,18 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
     // Score is already out of 100, so we use it directly for percentage
     const percentage = score;
     const color = 
-      score >= 70 ? '#10b981' : // Green
-      score >= 40 ? '#f59e0b' : // Yellow/Orange
-      '#ef4444'; // Red
+      score >= 70 ? 'var(--success-color)' : 
+      score >= 40 ? 'var(--warning-color, #ff9800)' : 
+      'var(--danger-color, #f44336)';
       
     return (
-      <Box sx={{ width: '100%', mt: 1.5, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
-            Score
-          </Typography>
-          <Typography variant="caption" sx={{ 
-            color: color,
-            fontWeight: 600,
-            fontSize: '0.875rem'
-          }}>
-            {Math.round(score)}/100
-          </Typography>
-        </Box>
+      <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
         <Box className="score-bar-container" sx={{ 
           width: '100%', 
-          bgcolor: 'rgba(0,0,0,0.08)',
-          borderRadius: 2,
+          bgcolor: 'background.default',
+          borderRadius: 1,
           overflow: 'hidden',
-          height: 12,
+          height: 8,
           position: 'relative'
         }}>
           <Box
@@ -85,11 +73,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               height: '100%',
               bgcolor: color,
               transition: 'width 0.5s ease-in-out',
-              borderRadius: 'inherit',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              paddingRight: '4px'
+              borderRadius: 'inherit'
             }}
           />
         </Box>
