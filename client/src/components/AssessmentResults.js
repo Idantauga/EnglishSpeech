@@ -50,34 +50,35 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   };
 
   const renderScoreBar = (score) => {
-    // Score is already out of 100, so we use it directly for percentage
-    const percentage = score;
+    const percentage = Math.min(Math.max(score, 0), 100); // Ensure score is between 0-100
     const color = 
       score >= 70 ? '#10b981' : // Green
       score >= 40 ? '#f59e0b' : // Yellow/Orange
       '#ef4444'; // Red
       
     return (
-      <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
-        <Box className="score-bar-container" sx={{ 
-          width: '100%', 
-          bgcolor: 'rgba(0,0,0,0.08)',
-          borderRadius: 1,
+      <div style={{ 
+        width: '100%', 
+        marginTop: '8px', 
+        marginBottom: '24px' 
+      }}>
+        <div style={{
+          width: '100%',
+          height: '8px',
+          backgroundColor: '#e5e7eb', // Light grey background
+          borderRadius: '4px',
           overflow: 'hidden',
-          height: 8,
           position: 'relative'
         }}>
-          <Box
-            sx={{
-              width: `${percentage}%`,
-              height: '100%',
-              bgcolor: color,
-              transition: 'width 0.5s ease-in-out',
-              borderRadius: 'inherit'
-            }}
-          />
-        </Box>
-      </Box>
+          <div style={{
+            width: `${percentage}%`,
+            height: '100%',
+            backgroundColor: color,
+            borderRadius: '4px',
+            transition: 'width 0.5s ease-in-out'
+          }} />
+        </div>
+      </div>
     );
   };
 
