@@ -23,30 +23,36 @@ function App() {
   const getParameters = () => [
     { 
       id: 1, 
+      name: getTranslation(language, 'parameters.relevance.name'), 
+      description: getTranslation(language, 'parameters.relevance.description'), 
+      weight: 100 
+    },
+    { 
+      id: 2, 
       name: getTranslation(language, 'parameters.vocabulary.name'), 
       description: getTranslation(language, 'parameters.vocabulary.description'), 
       weight: 100 
     },
     { 
-      id: 2, 
+      id: 3, 
       name: getTranslation(language, 'parameters.articulation.name'), 
       description: getTranslation(language, 'parameters.articulation.description'), 
       weight: 100 
     },
     { 
-      id: 3, 
+      id: 4, 
       name: getTranslation(language, 'parameters.fluency.name'), 
       description: getTranslation(language, 'parameters.fluency.description'), 
       weight: 100 
     },
     { 
-      id: 4, 
+      id: 5, 
       name: getTranslation(language, 'parameters.grammar.name'), 
       description: getTranslation(language, 'parameters.grammar.description'), 
       weight: 100 
     },
     { 
-      id: 5, 
+      id: 6, 
       name: getTranslation(language, 'parameters.syntax.name'), 
       description: getTranslation(language, 'parameters.syntax.description'), 
       weight: 100 

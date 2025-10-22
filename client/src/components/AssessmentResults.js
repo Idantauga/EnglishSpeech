@@ -426,7 +426,9 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             bgcolor: 'background.paper',
             borderRadius: 1,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: '#ef4444',
+            borderWidth: '1px',
+            boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.1)'
           }}>
             <Typography 
               variant="subtitle1" 

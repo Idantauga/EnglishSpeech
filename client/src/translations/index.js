@@ -51,6 +51,10 @@ export const translations = {
       syntax: {
         name: "Syntax",
         description: "Proper sentence structure and word order"
+      },
+      relevance: {
+        name: "Relevance",
+        description: "How well the answer addresses the question asked"
       }
     },
     
@@ -155,6 +159,10 @@ export const translations = {
       syntax: {
         name: "תחביר",
         description: "מבנה משפט נכון וסדר מילים"
+      },
+      relevance: {
+        name: "רלוונטיות",
+        description: "עד כמה התשובה מתייחסת לשאלה שנשאלה"
       }
     },
     
