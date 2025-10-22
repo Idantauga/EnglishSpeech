@@ -53,9 +53,9 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
     // Score is already out of 100, so we use it directly for percentage
     const percentage = score;
     const color = 
-      score >= 70 ? 'var(--success-color)' : 
-      score >= 40 ? 'var(--warning-color, #ff9800)' : 
-      'var(--danger-color, #f44336)';
+      score >= 70 ? '#10b981' : // Green
+      score >= 40 ? '#f59e0b' : // Yellow/Orange
+      '#ef4444'; // Red
       
     return (
       <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
