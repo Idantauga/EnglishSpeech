@@ -325,7 +325,14 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
           </Box>
         )}
 
-        {Object.entries(assessment).map(([category, data]) => (
+        {Object.entries(assessment)
+          .sort(([a], [b]) => {
+            // Put relevance first, then maintain original order for others
+            if (a === 'relevance') return -1;
+            if (b === 'relevance') return 1;
+            return 0;
+          })
+          .map(([category, data]) => (
           <Box key={category} className="content-section" sx={{ 
             mb: 4,
             p: 3,
