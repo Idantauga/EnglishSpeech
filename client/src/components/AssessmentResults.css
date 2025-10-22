@@ -43,7 +43,7 @@
 
 /* Score bars */
 .assessment-results-modal .score-bar-container {
-  background-color: var(--input-bg) !important;
+  background-color: rgba(0,0,0,0.08) !important;
 }
 
 /* Transcript section */

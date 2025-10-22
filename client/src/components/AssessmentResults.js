@@ -61,7 +61,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
       <Box sx={{ width: '100%', mt: 1, mb: 3 }}>
         <Box className="score-bar-container" sx={{ 
           width: '100%', 
-          bgcolor: 'background.default',
+          bgcolor: 'rgba(0,0,0,0.08)',
           borderRadius: 1,
           overflow: 'hidden',
           height: 8,
