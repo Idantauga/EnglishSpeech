@@ -78,6 +78,13 @@
   box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2) !important;
 }
 
+/* Improvement suggestions section styling */
+.assessment-results-modal .improvement-suggestions {
+  background-color: var(--input-bg) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2) !important;
+}
+
 /* List items */
 .assessment-results-modal ul li::before {
   color: var(--success-color) !important;
