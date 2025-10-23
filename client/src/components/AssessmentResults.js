@@ -33,6 +33,29 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   console.log('Word count:', wordCount);
   console.log('Statistical parameters:', { sampleSize, populationMean, populationStdDev });
   
+  // Function to translate criteria names
+  const translateCriteriaName = (criteriaKey) => {
+    // Map backend criteria keys to our translation keys
+    const criteriaMap = {
+      'vocabulary': 'parameters.vocabulary.name',
+      'articulation': 'parameters.articulation.name',
+      'fluency': 'parameters.fluency.name',
+      'grammar': 'parameters.grammar.name',
+      'syntax': 'parameters.syntax.name',
+      'relevance': 'parameters.relevance.name'
+    };
+    
+    const translationKey = criteriaMap[criteriaKey.toLowerCase()];
+    if (translationKey) {
+      return getTranslation(language, translationKey);
+    }
+    
+    // Fallback: capitalize first letter and replace underscores with spaces
+    return criteriaKey.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+  
   if (!open || Object.keys(assessment).length === 0) {
     return null;
   }
@@ -320,7 +343,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               fontSize: '0.875rem',
               fontStyle: 'italic'
             }}>
-              This score represents a weighted average based on the assessment criteria.
+              {getTranslation(language, 'overallScoreDescription')}
             </Typography>
           </Box>
         )}
@@ -345,7 +368,6 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
             }
           }}>
             <Typography variant="subtitle1" sx={{ 
-              textTransform: 'capitalize',
               mb: 2,
               color: 'text.primary',
               fontWeight: 600,
@@ -353,7 +375,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <span>{category.split('_').join(' ')}</span>
+              <span>{translateCriteriaName(category)}</span>
               <Typography component="span" variant="body2" sx={{ 
                 color: 'text.secondary',
                 fontWeight: 500,
