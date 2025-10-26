@@ -257,7 +257,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {audioQuality !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Audio Quality
+                          {getTranslation(language, 'audioQuality')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {audioQuality}/10
@@ -267,7 +267,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {interruptions !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Interruptions
+                          {getTranslation(language, 'interruptions')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {interruptions}
@@ -277,7 +277,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {backgroundNoise !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Background Noise
+                          {getTranslation(language, 'backgroundNoise')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {backgroundNoise}/10
@@ -287,7 +287,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {clarityScore !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Clarity Score
+                          {getTranslation(language, 'clarityScore')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {clarityScore}/10
@@ -297,7 +297,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {speechRate !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Speech Rate
+                          {getTranslation(language, 'speechRate')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {speechRate} wpm
@@ -307,7 +307,7 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                     {speakingPercentage !== undefined && (
                       <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                          Speaking Time
+                          {getTranslation(language, 'speakingTime')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
                           {speakingPercentage}%

@@ -105,7 +105,15 @@ export const translations = {
     wordCountShorter: "Your response is somewhat shorter than average.",
     wordCountAverage: "Your response length is about average.",
     wordCountLonger: "Your response is somewhat longer than average.",
-    wordCountMuchLonger: "Your response is significantly longer than average."
+    wordCountMuchLonger: "Your response is significantly longer than average.",
+    
+    // Audio Quality Metrics
+    audioQuality: "Audio Quality",
+    interruptions: "Interruptions",
+    backgroundNoise: "Background Noise",
+    clarityScore: "Clarity Score",
+    speechRate: "Speech Rate",
+    speakingTime: "Speaking Time"
   },
   
   hebrew: {
@@ -214,7 +222,15 @@ export const translations = {
     wordCountShorter: "התשובה שלך קצת קצרה מהממוצע.",
     wordCountAverage: "אורך התשובה שלך בערך ממוצע.",
     wordCountLonger: "התשובה שלך קצת ארוכה מהממוצע.",
-    wordCountMuchLonger: "התשובה שלך ארוכה באופן משמעותי מהממוצע."
+    wordCountMuchLonger: "התשובה שלך ארוכה באופן משמעותי מהממוצע.",
+    
+    // Audio Quality Metrics
+    audioQuality: "איכות אודיו",
+    interruptions: "הפרעות",
+    backgroundNoise: "רעש רקע",
+    clarityScore: "ציון בהירות",
+    speechRate: "קצב דיבור",
+    speakingTime: "זמן דיבור"
   }
 };
 
