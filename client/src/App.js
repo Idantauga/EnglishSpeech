@@ -536,9 +536,9 @@ function App() {
 
       // STEP 1: First call the audio quality webhook
       console.log('Step 1: Calling audio quality webhook...');
-      let audioQualityResponse;
+      let audioQualityData = null;
       try {
-        audioQualityResponse = await fetch('https://tauga.app.n8n.cloud/webhook/english-test/audio-quality', {
+        const audioQualityResponse = await fetch('https://tauga.app.n8n.cloud/webhook/english-test/audio-quality', {
           method: 'POST',
           body: formData,
           headers: {
@@ -554,6 +554,11 @@ function App() {
         
         const audioQualityText = await audioQualityResponse.text();
         console.log('Audio quality webhook response:', audioQualityText);
+        
+        // Parse the audio quality response
+        const audioQualityResult = JSON.parse(audioQualityText);
+        audioQualityData = Array.isArray(audioQualityResult) ? audioQualityResult[0] : audioQualityResult;
+        console.log('Parsed audio quality data:', audioQualityData);
         
       } catch (audioQualityError) {
         console.error('Audio quality webhook error:', audioQualityError);
@@ -606,14 +611,35 @@ function App() {
       console.log('Grading response data:', responseData);
       
       if (responseData && responseData.output) {
-        // Store the assessment results
-        setAssessmentResults(responseData);
+        // Merge audio quality metrics into the response data
+        const combinedResults = {
+          ...responseData,
+          audioQuality: audioQualityData?.audioQuality,
+          interruptions: audioQualityData?.interruptions,
+          backgroundNoise: audioQualityData?.backgroundNoise,
+          clarityScore: audioQualityData?.clarityScore,
+          speechRate: audioQualityData?.speechRate,
+          speakingPercentage: audioQualityData?.speakingPercentage
+        };
+        
+        console.log('Combined results with audio quality metrics:', combinedResults);
+        
+        // Store the combined assessment results
+        setAssessmentResults(combinedResults);
         // Show results
         setShowResults(true);
         
         // Log the structured data
-        console.log('Assessment:', responseData.output.assessment);
-        console.log('Feedback:', responseData.output.feedback);
+        console.log('Assessment:', combinedResults.output.assessment);
+        console.log('Feedback:', combinedResults.output.feedback);
+        console.log('Audio Quality Metrics:', {
+          audioQuality: combinedResults.audioQuality,
+          interruptions: combinedResults.interruptions,
+          backgroundNoise: combinedResults.backgroundNoise,
+          clarityScore: combinedResults.clarityScore,
+          speechRate: combinedResults.speechRate,
+          speakingPercentage: combinedResults.speakingPercentage
+        });
       } else {
         console.warn('Unexpected response format:', result);
         throw new Error('Invalid response format from server');
