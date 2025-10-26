@@ -522,23 +522,11 @@ function App() {
       // Convert to JSON string and append to form data
       formData.append('criteria', JSON.stringify(criteriaData));
       
-      // Direct n8n webhook call - no backend proxy needed!
-      const endpoint = 'https://tauga.app.n8n.cloud/webhook/english-test';
-      
-      /* OLD BACKEND APPROACH (commented out for future reference):
-      // For production, use /api/check-english directly
-      // For development, use the full URL with port
-      const endpoint = process.env.NODE_ENV === 'production' 
-        ? '/api/check-english'
-        : 'http://localhost:5001/api/check-english';
-      */
-      
       console.log('Submitting form with data:', {
         question,
         studyLevel: studentLevel,
         criteria: criteriaData,
-        file: { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type },
-        endpoint
+        file: { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type }
       });
       
       // Log form data entries for debugging
@@ -546,49 +534,76 @@ function App() {
         console.log(key, value);
       }
 
-      // Make the actual request
-      let response;
+      // STEP 1: First call the audio quality webhook
+      console.log('Step 1: Calling audio quality webhook...');
+      let audioQualityResponse;
       try {
-        response = await fetch(endpoint, {
+        audioQualityResponse = await fetch('https://tauga.app.n8n.cloud/webhook/english-test/audio-quality', {
           method: 'POST',
           body: formData,
-          // Let the browser set the Content-Type with the correct boundary
           headers: {
             'Accept': 'application/json',
           }
-          // No credentials needed for n8n webhook
         });
         
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        console.log('Audio quality webhook response status:', audioQualityResponse.status);
+        
+        if (!audioQualityResponse.ok) {
+          throw new Error(`Audio quality webhook error: ${audioQualityResponse.status}`);
+        }
+        
+        const audioQualityText = await audioQualityResponse.text();
+        console.log('Audio quality webhook response:', audioQualityText);
+        
+      } catch (audioQualityError) {
+        console.error('Audio quality webhook error:', audioQualityError);
+        throw new Error(`Failed to process audio quality: ${audioQualityError.message}`);
+      }
+
+      // STEP 2: After audio quality webhook succeeds, call the grading endpoint
+      console.log('Step 2: Audio quality check successful, now calling grading endpoint...');
+      const gradingEndpoint = 'https://tauga.app.n8n.cloud/webhook/english-test';
+      
+      let gradingResponse;
+      try {
+        gradingResponse = await fetch(gradingEndpoint, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
+        
+        console.log('Grading response status:', gradingResponse.status);
+        console.log('Grading response headers:', Object.fromEntries(gradingResponse.headers.entries()));
         
       } catch (fetchError) {
-        console.error('Fetch error:', fetchError);
-        throw new Error(`Failed to send request to server: ${fetchError.message}`);
+        console.error('Grading fetch error:', fetchError);
+        throw new Error(`Failed to send request to grading server: ${fetchError.message}`);
       }
       
       let result;
       try {
-        const responseText = await response.text();
-        console.log('Raw response:', responseText);
+        const responseText = await gradingResponse.text();
+        console.log('Raw grading response:', responseText);
         result = responseText ? JSON.parse(responseText) : {};
       } catch (parseError) {
-        console.error('Error parsing response:', parseError);
-        throw new Error('Invalid response from server');
+        console.error('Error parsing grading response:', parseError);
+        throw new Error('Invalid response from grading server');
       }
       
-      if (!response.ok) {
-        console.error('Server error response:', {
-          status: response.status,
-          statusText: response.statusText,
+      if (!gradingResponse.ok) {
+        console.error('Grading server error response:', {
+          status: gradingResponse.status,
+          statusText: gradingResponse.statusText,
           result
         });
-        throw new Error(result.error || `Server error: ${response.status} ${response.statusText}`);
+        throw new Error(result.error || `Grading server error: ${gradingResponse.status} ${gradingResponse.statusText}`);
       }
       
       // The response is an array with a single object containing the results
       const responseData = Array.isArray(result) ? result[0] : result;
-      console.log('Response data:', responseData);
+      console.log('Grading response data:', responseData);
       
       if (responseData && responseData.output) {
         // Store the assessment results

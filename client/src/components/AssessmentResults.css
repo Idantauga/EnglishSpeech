@@ -123,3 +123,17 @@
 [dir="rtl"] .assessment-results-modal .MuiBox-root[sx*="gap"] {
   flex-direction: row-reverse !important;
 }
+
+/* Audio Quality Metrics styling */
+.assessment-results-modal .audio-metric-item {
+  background-color: var(--input-bg) !important;
+  padding: 12px !important;
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.assessment-results-modal .audio-metric-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}

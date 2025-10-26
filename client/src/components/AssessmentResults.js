@@ -22,6 +22,14 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
   const wordCount = results?.word_count;
   const transcript = results?.transcript;
   
+  // Extract audio quality metrics
+  const audioQuality = results?.audioQuality;
+  const interruptions = results?.interruptions;
+  const backgroundNoise = results?.backgroundNoise;
+  const clarityScore = results?.clarityScore;
+  const speechRate = results?.speechRate;
+  const speakingPercentage = results?.speakingPercentage;
+  
   // Extract statistical parameters for word count distribution
   // These parameters are at the top level of the response array's first item
   const sampleSize = results?.sample_size;
@@ -233,6 +241,93 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                         </Typography>
                       </Box>
                     )}
+                  </Box>
+                )}
+                
+                {/* Audio Quality Metrics */}
+                {(audioQuality !== undefined || interruptions !== undefined || backgroundNoise !== undefined || 
+                  clarityScore !== undefined || speechRate !== undefined || speakingPercentage !== undefined) && (
+                  <Box sx={{ 
+                    mt: 3,
+                    pt: 2,
+                    borderTop: '1px solid',
+                    borderColor: 'divider'
+                  }}>
+                    <Typography variant="subtitle2" sx={{ 
+                      color: 'text.primary', 
+                      mb: 2,
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}>
+                      Audio Quality Metrics
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                      gap: 2,
+                      justifyContent: 'center'
+                    }}>
+                      {audioQuality !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Audio Quality
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontSize: '1.1rem' }}>
+                            {audioQuality}/10
+                          </Typography>
+                        </Box>
+                      )}
+                      {interruptions !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Interruptions
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
+                            {interruptions}
+                          </Typography>
+                        </Box>
+                      )}
+                      {backgroundNoise !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Background Noise
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
+                            {backgroundNoise}/10
+                          </Typography>
+                        </Box>
+                      )}
+                      {clarityScore !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Clarity Score
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontSize: '1.1rem' }}>
+                            {clarityScore}/10
+                          </Typography>
+                        </Box>
+                      )}
+                      {speechRate !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Speech Rate
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
+                            {speechRate} wpm
+                          </Typography>
+                        </Box>
+                      )}
+                      {speakingPercentage !== undefined && (
+                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                            Speaking Time
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
+                            {speakingPercentage}%
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
                   </Box>
                 )}
               </Box>
