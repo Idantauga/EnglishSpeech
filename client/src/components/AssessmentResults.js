@@ -248,86 +248,72 @@ const AssessmentResults = ({ open, onClose, results, audioURL, question }) => {
                 {(audioQuality !== undefined || interruptions !== undefined || backgroundNoise !== undefined || 
                   clarityScore !== undefined || speechRate !== undefined || speakingPercentage !== undefined) && (
                   <Box sx={{ 
-                    mt: 3,
-                    pt: 2,
-                    borderTop: '1px solid',
-                    borderColor: 'divider'
+                    mt: 2, 
+                    display: 'flex', 
+                    gap: 3,
+                    justifyContent: 'center',
+                    flexWrap: 'wrap'
                   }}>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: 'text.primary', 
-                      mb: 2,
-                      fontWeight: 600,
-                      textAlign: 'center'
-                    }}>
-                      Audio Quality Metrics
-                    </Typography>
-                    <Box sx={{ 
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                      gap: 2,
-                      justifyContent: 'center'
-                    }}>
-                      {audioQuality !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Audio Quality
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontSize: '1.1rem' }}>
-                            {audioQuality}/10
-                          </Typography>
-                        </Box>
-                      )}
-                      {interruptions !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Interruptions
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
-                            {interruptions}
-                          </Typography>
-                        </Box>
-                      )}
-                      {backgroundNoise !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Background Noise
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
-                            {backgroundNoise}/10
-                          </Typography>
-                        </Box>
-                      )}
-                      {clarityScore !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Clarity Score
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main', fontSize: '1.1rem' }}>
-                            {clarityScore}/10
-                          </Typography>
-                        </Box>
-                      )}
-                      {speechRate !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Speech Rate
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
-                            {speechRate} wpm
-                          </Typography>
-                        </Box>
-                      )}
-                      {speakingPercentage !== undefined && (
-                        <Box className="audio-metric-item" sx={{ textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                            Speaking Time
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '1.1rem' }}>
-                            {speakingPercentage}%
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
+                    {audioQuality !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Audio Quality
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {audioQuality}/10
+                        </Typography>
+                      </Box>
+                    )}
+                    {interruptions !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Interruptions
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {interruptions}
+                        </Typography>
+                      </Box>
+                    )}
+                    {backgroundNoise !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Background Noise
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {backgroundNoise}/10
+                        </Typography>
+                      </Box>
+                    )}
+                    {clarityScore !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Clarity Score
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {clarityScore}/10
+                        </Typography>
+                      </Box>
+                    )}
+                    {speechRate !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Speech Rate
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {speechRate} wpm
+                        </Typography>
+                      </Box>
+                    )}
+                    {speakingPercentage !== undefined && (
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                          Speaking Time
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                          {speakingPercentage}%
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
                 )}
               </Box>
